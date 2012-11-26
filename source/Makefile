@@ -3,7 +3,9 @@ PELICANOPTS=
 
 BASEDIR=$(CURDIR)
 INPUTDIR=$(BASEDIR)/content
-OUTPUTDIR=$(BASEDIR)/output
+#OUTPUTDIR=$(BASEDIR)/output
+# put output one directory up for the github site
+OUTPUTDIR=$(BASEDIR)/..
 CONFFILE=$(BASEDIR)/pelicanconf.py
 PUBLISHCONF=$(BASEDIR)/publishconf.py
 
@@ -43,7 +45,15 @@ $(OUTPUTDIR)/%.html:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 clean:
-	find $(OUTPUTDIR) -mindepth 1 -delete
+	@#this is too dangerous
+	@#find $(OUTPUTDIR) -mindepth 1 -delete
+	rm -f $(OUTPUTDIR)/*.html
+	rm -rf $(OUTPUTDIR)/author
+	rm -rf $(OUTPUTDIR)/category
+	rm -rf $(OUTPUTDIR)/feeds
+	rm -rf $(OUTPUTDIR)/posts
+	rm -rf $(OUTPUTDIR)/tag
+	rm -rf $(OUTPUTDIR)/theme
 
 regenerate: clean
 	$(PELICAN) -r $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
