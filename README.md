@@ -1,4 +1,2 @@
-rogerallen.github.com
-=====================
-
-my github website
+[rogerallen.github.com](http://rogerallen.github.com)
+=====================================================
