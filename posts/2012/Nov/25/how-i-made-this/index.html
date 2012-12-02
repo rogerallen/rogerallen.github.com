@@ -43,6 +43,8 @@
         <a href="posts/2012/Nov/25/how-i-made-this/" rel="bookmark"
            title="Permalink to How I made this">How I made this</a></h1>
       
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="RogerAllen">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+
     </header>
 
     <div class="entry-content">
@@ -65,8 +67,8 @@
 to upgrade my ruby install on the Mac to run Jekyll.  These sites were
 useful to me.</p>
 <ul>
-<li>http://docs.getpelican.com/</li>
-<li>http://martinbrochhaus.com/2012/02/pelican.html</li>
+<li><a href="http://docs.getpelican.com/">http://docs.getpelican.com/</a></li>
+<li><a href="http://martinbrochhaus.com/2012/02/pelican.html">http://martinbrochhaus.com/2012/02/pelican.html</a></li>
 </ul>
 <p>I created the site within a "source" subdirectory since I didn't want
 yet another repo for the blog source.  I used pelican-quickstart to
@@ -78,7 +80,9 @@ so I updated that bit, too. </p>
 <p>We'll see how well it works to have the source &amp; output
 [mis]configured like this.  It might be a bad idea...</p>
 <p>To run things locally, I do:</p>
-<div class="codehilite"><pre><span class="c"># to create the initial site</span>
+<div class="codehilite"><pre><span class="c"># get into source</span>
+<span class="nb">cd </span>rogerallen.github.com/source
+<span class="c"># to create the initial site</span>
 make html
 <span class="c"># to automatically reload the site &amp; serve on localhost:8000</span>
 make devserver
@@ -128,6 +132,17 @@ make devserver
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36720141-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
 
 
 

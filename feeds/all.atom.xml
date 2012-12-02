@@ -3,8 +3,8 @@
 to upgrade my ruby install on the Mac to run Jekyll.  These sites were
 useful to me.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;http://docs.getpelican.com/&lt;/li&gt;
-&lt;li&gt;http://martinbrochhaus.com/2012/02/pelican.html&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.getpelican.com/"&gt;http://docs.getpelican.com/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://martinbrochhaus.com/2012/02/pelican.html"&gt;http://martinbrochhaus.com/2012/02/pelican.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;I created the site within a "source" subdirectory since I didn't want
 yet another repo for the blog source.  I used pelican-quickstart to
@@ -16,7 +16,9 @@ so I updated that bit, too. &lt;/p&gt;
 &lt;p&gt;We'll see how well it works to have the source &amp;amp; output
 [mis]configured like this.  It might be a bad idea...&lt;/p&gt;
 &lt;p&gt;To run things locally, I do:&lt;/p&gt;
-&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;# to create the initial site&lt;/span&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;# get into source&lt;/span&gt;
+&lt;span class="nb"&gt;cd &lt;/span&gt;rogerallen.github.com/source
+&lt;span class="c"&gt;# to create the initial site&lt;/span&gt;
 make html
 &lt;span class="c"&gt;# to automatically reload the site &amp;amp; serve on localhost:8000&lt;/span&gt;
 make devserver
