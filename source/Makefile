@@ -51,6 +51,7 @@ clean:
 	rm -rf $(OUTPUTDIR)/author
 	rm -rf $(OUTPUTDIR)/category
 	rm -rf $(OUTPUTDIR)/feeds
+	rm -rf $(OUTPUTDIR)/pages
 	rm -rf $(OUTPUTDIR)/posts
 	rm -rf $(OUTPUTDIR)/tag
 	rm -rf $(OUTPUTDIR)/theme

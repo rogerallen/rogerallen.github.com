@@ -6,9 +6,9 @@ Slug: how-i-made-this
 Author: Roger Allen
 Summary: How I'm using Pelican to create this site.
 
-After a short search, I settled on Pelican since I don't really care
-to upgrade my ruby install on the Mac to run Jekyll.  These sites were
-useful to me.
+After a short search, I settled on Pelican as a blog creator since I
+don't really care to upgrade my ruby install on the Mac to run Jekyll.
+These sites were useful to me.
 
 * [http://docs.getpelican.com/](http://docs.getpelican.com/)
 * [http://martinbrochhaus.com/2012/02/pelican.html](http://martinbrochhaus.com/2012/02/pelican.html)
@@ -37,3 +37,17 @@ To run things locally, I do:
     ./develop_server.sh stop
 
 I'm going to try publishing things as-is and fix up themes & such later.
+
+*Update 12/19/2012*
+
+I installed https://github.com/getpelican/pelican-themes in
+parallel to the blog git repo. I looked into the different themes and
+the reasonable choices seemed to be: basic, bootstrap2, tuxlite_tbs,
+waterspill-en
+
+    :::bash
+    THEME = '../../pelican-themes/tuxlite_tbs'
+
+I think this will work out better.  I also added a pages directory and I see the "about me" getting generated. 
+
+Now for some actual content.

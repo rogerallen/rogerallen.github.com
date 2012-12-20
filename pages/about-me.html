@@ -51,77 +51,39 @@
 
         <div class="span9">
                 
-
-        
-
-
-    <div class='article'>
-        <div class="content-title">
-            <a href="../posts/2012/11/25/how-i-made-this/"><h1>How I made this</h1></a>
-            Sun 25 November 2012
-
-by <a class="url fn" href="../author/roger-allen.html">Roger Allen</a>
- 
-
-
- 
-        </div>
-        
-        <div><p>After a short search, I settled on Pelican as a blog creator since I
-don't really care to upgrade my ruby install on the Mac to run Jekyll.
-These sites were useful to me.</p>
-<ul>
-<li><a href="http://docs.getpelican.com/">http://docs.getpelican.com/</a></li>
-<li><a href="http://martinbrochhaus.com/2012/02/pelican.html">http://martinbrochhaus.com/2012/02/pelican.html</a></li>
-</ul>
-<p>I created the site within a "source" subdirectory since I didn't want
-yet another repo for the blog source.  I used pelican-quickstart to
-fill in the basic configuration.  But, this will publish the output to
-the wrong place for serving on github.  So, I had to edit the
-OUTPUTDIR to point one directory up in both the Makefile and
-develop_server.sh.  This also wreaks havoc with the make clean command
-so I updated that bit, too. </p>
-<p>We'll see how well it works to have the source &amp; output
-[mis]configured like this.  It might be a bad idea...</p>
-<p>To run things locally, I do:</p>
-<div class="codehilite"><pre><span class="c"># get into source</span>
-<span class="nb">cd </span>rogerallen.github.com/source
-<span class="c"># to create the initial site</span>
-make html
-<span class="c"># to automatically reload the site &amp; serve on localhost:8000</span>
-make devserver
-<span class="c"># and when you are done.</span>
-./develop_server.sh stop
-</pre></div>
-
-
-<p>I'm going to try publishing things as-is and fix up themes &amp; such later.</p>
-<p><em>Update 12/19/2012</em></p>
-<p>I installed https://github.com/getpelican/pelican-themes in
-parallel to the blog git repo. I looked into the different themes and
-the reasonable choices seemed to be: basic, bootstrap2, tuxlite_tbs,
-waterspill-en</p>
-<div class="codehilite"><pre><span class="nv">THEME</span> <span class="o">=</span> <span class="s1">&#39;../../pelican-themes/tuxlite_tbs&#39;</span>
-</pre></div>
-
-
-<p>I think this will work out better.  I also added a pages directory and I see the "about me" getting generated. </p>
-<p>Now for some actual content.</p></div>
-        <hr />
-    </div>
-		
-            <div class="pagination">
-<ul>
-    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
-
-    <li class="active"><a href="../tag/pelican.html">1</a></li>
-
-    <li class="next disabled"><a href="#">&rarr; Next</a></li>
-
-</ul>
-</div>    
- 
-  
+<section id="content" class="body">    
+    <h2 class="content-title">About Me</h2>
+        <p>Hi, I'm Roger Allen.  I live near Portland, Oregon.  I am a GPU
+Architect at <a href="http://www.nvidia.com">NVIDIA</a>.  Which reminds me to
+say that my opinions on this site are my own and do not represent my
+employer or anyone else.</p>
+<p>I'm writing this blog in the hopes of unifying a few online presences
+I have created over the years.  We'll see how this goes.  I seem to
+not be very consistent in how I create content...</p>
+<p>A long time ago, I made <a href="http://www.rogerandwendy.com/roger/index.html">my rogerandwendy.com
+site</a> and I have a few
+things there.  I'll probably be moving them to this site.</p>
+<p>I started a <a href="http://rogerallen.blogspot.com/">blog on blogspot</a> but
+without anything driving my posts, this kind of fizzled.</p>
+<p>I moved to <a href="http://roger-allen.posterous.com/">blogging on posterous</a> and
+I have a few articles there, but they got bought by Twitter and they
+appear to be not updating the site anymore.  I fear that it will go
+away.</p>
+<p>I have a <a href="http://bitbucket.org/rallen">spot on bitbucket</a> since I was exposed to
+<a href="http://mercurial.selenic.com/">hg</a> before <a href="http://git-scm.com/">git</a>,
+but git &amp; github are winning, and it hurts my brain to intermix git &amp;
+hg, so I seem to be using that site less &amp; less...</p>
+<p>I created my <a href="https://github.com/rogerallen">github account</a> to hack
+on the <a href="https://github.com/overtone">Overtone</a> project, mainly.  Along
+the way, I've found myself extremely impressed with the git flow and
+the github site.  I'm finding that I want to write some blog entries
+about Overtone and creating sounds &amp; music, so I'll give blogging here
+a try.</p>
+<p>Speaking of Overtone &amp; music, <a href="http://soundcloud.com/roger-allen">I'm on
+soundcloud</a>, too.</p>
+<p>Oh, and I may <a href="http://twitter.com/RogerAllen">tweet, sometimes</a>.</p>
+<p><a href="http://www.youtube.com/watch?v=QY9oWfkKt6A">Be seeing you...</a></p>
+</section>
         </div>
         
         <div class="span3">
