@@ -130,5 +130,5 @@ branch (soon to be a release).  There are some [demonstration examples
 here](https://github.com/overtone/overtone/blob/master/src/overtone/examples/instruments/guitar_synth.clj).  
 
 If you have suggestions or happen to know about properly modelling a
-guitar, let me know.  I'd love to hear ideas on improve the synth.
+guitar, let me know.  I'd love to hear ideas on how to improve the synth.
 
