@@ -50,4 +50,6 @@ waterspill-en
 
 I think this will work out better.  I also added a pages directory and I see the "about me" getting generated. 
 
+Oh, and the code for the site is [hosted here](https://github.com/rogerallen/rogerallen.github.com).
+
 Now for some actual content.
