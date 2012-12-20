@@ -14,7 +14,10 @@ DISPLAY_PAGES_ON_MENU = True
 # ??? FEED_DOMAIN = 'http://rogerallen.github.com/'
 
 # Blogroll
-LINKS =  (('Pelican', 'http://docs.notmyidea.org/alexis/pelican/'),)
+LINKS =  (
+    ('My Github Repo', 'http://github.com/rogerallen/'),
+    ('My Bitbucket Repo', 'http://bitbucket.org/rallen/'),
+    ('Pelican', 'http://docs.notmyidea.org/alexis/pelican/'),)
 
 # Social widget
 SOCIAL = (('@RogerAllen on twitter', 'https://twitter.com/RogerAllen'),)

@@ -1,5 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Roger Allen's Github Site</title><link href="/" rel="alternate"></link><link href="/feeds/all-en.atom.xml" rel="self"></link><id>/</id><updated>2012-11-25T22:20:00-08:00</updated><entry><title>How I made this</title><link href="/posts/2012/11/25/how-i-made-this/" rel="alternate"></link><updated>2012-11-25T22:20:00-08:00</updated><author><name>Roger Allen</name></author><id>tag:,2012-11-25:posts/2012/11/25/how-i-made-this/</id><summary type="html">&lt;p&gt;After a short search, I settled on Pelican as a blog creator since I
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Roger Allen's Github Site</title><link href="/" rel="alternate"></link><link href="/feeds/all-en.atom.xml" rel="self"></link><id>/</id><updated>2012-12-19T22:22:00-08:00</updated><entry><title>Creating Distortion in Overtone</title><link href="/posts/2012/12/19/overtone-distortion/" rel="alternate"></link><updated>2012-12-19T22:22:00-08:00</updated><author><name>Roger Allen</name></author><id>tag:,2012-12-19:posts/2012/12/19/overtone-distortion/</id><summary type="html">&lt;p&gt;I recently created &lt;a href="http://github.com/overtone/overtone/blob/master/src/overtone/synth/stringed.clj"&gt;a guitar
+synthesizer&lt;/a&gt;
+for the &lt;a href="http://overtone.github.com/"&gt;Overtone&lt;/a&gt; project.  It started
+as some code in my &lt;a href="http://github.com/rogerallen/explore_overtone"&gt;explore_overtone
+project&lt;/a&gt;.  This was a
+really fun project, but one of the pieces that gave me some trouble
+was a proper "distortion" sound.  After all, if your guitar can't
+sound like Jimi Hendrix, what's the point?  After we resolved this issue on &lt;a href="http://groups.google.com/forum/?fromgroups=#!searchin/overtone/distortion/overtone/CQbsKxjEQvc/XGeNOc3XbL4J"&gt;the
+overtone
+forum&lt;/a&gt;, Sam Aaron suggested I write
+up something describing the process I went through.  In this post,
+I'll try to explain.&lt;/p&gt;
+&lt;p&gt;Initially, I was able to get the guitar to work as an acoustic pretty
+quickly.  I made 6 "string" synths and mixed them together in an "amp" synth.  You can see on &lt;a href="http://github.com/rogerallen/explore_overtone/blob/a6954fae151743d77be87231cebb8232d15da8bf/src/explore_overtone/guitar.clj#L71"&gt;line 71 of the code from that time&lt;/a&gt;
+that it uses a Karplus-Strong &lt;code&gt;pluck&lt;/code&gt; ugen which produces a
+nice nylon string output.  Here is what a series of E chords sounded like.&lt;/p&gt;
+&lt;p&gt;&lt;audio controls="controls" height="40" width="100"&gt;
+  &lt;source src="audio/guitar-e-chord.mp3" type="audio/mp3"&gt;
+  &lt;source src="audio/guitar-e-chord.ogg" type="audio/ogg"&gt;
+  &lt;embed height="40" width="100" src="audio/guitar-e-chord.mp3"&gt;
+&lt;/audio&gt; &lt;/p&gt;
+&lt;p&gt;I added distortion with the code from the
+&lt;a href="https://github.com/overtone/overtone/blob/7d9ae954b23cdfff6a889184942a3d449ea8d5c5/src/overtone/studio/fx.clj#L96"&gt;fx-distortion2&lt;/a&gt;
+ugen and you can see it on &lt;a href="http://github.com/rogerallen/explore_overtone/blob/a6954fae151743d77be87231cebb8232d15da8bf/src/explore_overtone/guitar.clj#L100"&gt;lines
+99-101&lt;/a&gt;
+in the "amp" synth section.  This distortion function sends positive
+input signal values towards +1.0 and negative values towards -1.0.
+This amplifies and distorts the input wave.  A larger distortion
+parameter moves more and more of the wave to +/-1.0.  &lt;/p&gt;
+&lt;p&gt;The following function graph hopefully shows this clearly.  X is the input value and Y is after the distortion is applied.  There are 3 lines shown, the 45 degree X=Y line is with 0.0 as the distortion amount.  With 0.25 as the amount, the line pushes a bit away from the straight line.  At 0.9, the distortion pushes all values well away from their input value--the distortion is dramatic.&lt;/p&gt;
+&lt;p&gt;&lt;img src="image/distortion-function.png" width="718" height="553" /&gt;&lt;/p&gt;
+&lt;p&gt;Hopefully, this clarifies how a small sine wave input would have the
+tops of the sine wave exaggerated into a larger, more square-ish wave
+output.&lt;/p&gt;
+&lt;p&gt;Frustratingly, I just could not seem to keep the distorted sound
+volume level.  It just got quiet or muddy when enough chords were
+played in sequence.  Listen to how it starts off sounding great and
+quickly becomes quite frustrating...&lt;/p&gt;
+&lt;p&gt;&lt;audio controls="controls" height="40" width="100"&gt;
+  &lt;source src="audio/guitar-distort-0.mp3" type="audio/mp3"&gt;
+  &lt;source src="audio/guitar-distort-0.ogg" type="audio/ogg"&gt;
+  &lt;embed height="40" width="100" src="audio/guitar-distort-0.mp3"&gt;
+&lt;/audio&gt; &lt;/p&gt;
+&lt;p&gt;This was teasing me with the potential for something really cool--but
+just out of my reach.  Curiously, letting the instrument rest for 30
+seconds brought it back to being useful.&lt;/p&gt;
+&lt;p&gt;After I posted my frustration to the forum it dawned on me to take a
+look at the wave file in Audacity...&lt;/p&gt;
+&lt;p&gt;&lt;img src="image/guitar-e-chord-wav.png" width="645" height="141" /&gt;&lt;/p&gt;
+&lt;p&gt;Looking at the image gave me a hint to what was going on--can you see
+it?  Let's take a look at the distored output, too.  &lt;em&gt;Yes, the
+wav files don't line up exactly. I created these sounds live.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="image/guitar-distort-0-wav.png" width="513" height="143" /&gt;&lt;/p&gt;
+&lt;p&gt;Now, I knew what was happening.  You can see in the first image
+that the acoustic waveform is entirely above the 0.0 line, by the 3rd
+chord.  Apparently, there is some sort of "DC bias" creeping into the
+waveform from the &lt;code&gt;pluck&lt;/code&gt; ugen.  This doesn't affect the acoustic audio
+too much, but it wreaks havoc on the distortion function.&lt;/p&gt;
+&lt;p&gt;Since both the high &lt;em&gt;and&lt;/em&gt; low points of the wave were positive, the
+distortion function was mapping all the positive values towards 1.0.
+This had the effect of &lt;em&gt;reducing&lt;/em&gt; the amplitude change of the
+distorted wave.  So, the sound became quieter instead of louder.&lt;/p&gt;
+&lt;p&gt;In the forum, Sam Aaron pointed me towards the &lt;code&gt;leak-dc&lt;/code&gt; ugen which
+removes DC bias.  I was able to give it a try and it fixed the problem
+perfectly.  You can see the &lt;a href="http://github.com/rogerallen/explore_overtone/commit/97a91d7d84b627cb1e0fd579ff287c4403e29de9#src/explore_overtone/guitar.clj"&gt;change
+here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;With this, I finally had the distorted sound I was looking for.  Did
+you think that a computer could sound like this?&lt;/p&gt;
+&lt;p&gt;&lt;audio controls="controls" height="40" width="100"&gt;
+  &lt;source src="audio/guitar-distort-1.mp3" type="audio/mp3"&gt;
+  &lt;source src="audio/guitar-distort-1.ogg" type="audio/ogg"&gt;
+  &lt;embed height="40" width="100" src="audio/guitar-distort-1.mp3"&gt;
+&lt;/audio&gt; &lt;/p&gt;
+&lt;p&gt;And you can see that the waveform looks balanced here:&lt;/p&gt;
+&lt;p&gt;&lt;img src="image/guitar-distort-1-wav.png" width="443" height="140" /&gt;&lt;/p&gt;
+&lt;p&gt;That was a fun ride...  I'd like to thank everone on that forum post
+for all their help.  It was a fun project to create this instrument
+and I hope people use it to have fun &amp;amp; create some awesome music.&lt;/p&gt;</summary><category term="overtone"></category></entry><entry><title>How I made this</title><link href="/posts/2012/11/25/how-i-made-this/" rel="alternate"></link><updated>2012-11-25T22:20:00-08:00</updated><author><name>Roger Allen</name></author><id>tag:,2012-11-25:posts/2012/11/25/how-i-made-this/</id><summary type="html">&lt;p&gt;After a short search, I settled on Pelican as a blog creator since I
 don't really care to upgrade my ruby install on the Mac to run Jekyll.
 These sites were useful to me.&lt;/p&gt;
 &lt;ul&gt;

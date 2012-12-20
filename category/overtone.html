@@ -9,14 +9,14 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
-    <script src="./theme/html5.js"></script>
+    <script src=".././theme/html5.js"></script>
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="./theme/bootstrap.min.css" rel="stylesheet">
-    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
-    <link href="./theme/local.css" rel="stylesheet">
-    <link href="./theme/pygments.css" rel="stylesheet">
+    <link href=".././theme/bootstrap.min.css" rel="stylesheet">
+    <link href=".././theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href=".././theme/local.css" rel="stylesheet">
+    <link href=".././theme/pygments.css" rel="stylesheet">
 
 </head>
 
@@ -32,7 +32,7 @@
              <span class="icon-bar"></span>
          </a>
 
-        <a class="brand" href=".">Roger Allen's Github Site</a>
+        <a class="brand" href="../.">Roger Allen's Github Site</a>
 
         <div class="nav-collapse">
         <ul class="nav">
@@ -40,7 +40,7 @@
             
         
         
-            <li><a href="./pages/about-me.html">About Me</a></li>
+            <li><a href=".././pages/about-me.html">About Me</a></li>
         
         
         </ul>
@@ -65,11 +65,11 @@
 
     <div class='article'>
         <div class="content-title">
-            <a href="./posts/2012/12/19/overtone-distortion/"><h1>Creating Distortion in Overtone</h1></a>
+            <a href=".././posts/2012/12/19/overtone-distortion/"><h1>Creating Distortion in Overtone</h1></a>
             Wed 19 December 2012
 
 
-by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
+by <a class="url fn" href=".././author/roger-allen.html">Roger Allen</a>
  
 
 
@@ -94,9 +94,9 @@ quickly.  I made 6 "string" synths and mixed them together in an "amp" synth.  Y
 that it uses a Karplus-Strong <code>pluck</code> ugen which produces a
 nice nylon string output.  Here is what a series of E chords sounded like.</p>
 <p><audio controls="controls" height="40" width="100">
-  <source src="static/audio/guitar-e-chord.mp3" type="audio/mp3">
-  <source src="static/audio/guitar-e-chord.ogg" type="audio/ogg">
-  <embed height="40" width="100" src="static/audio/guitar-e-chord.mp3">
+  <source src="../static/audio/guitar-e-chord.mp3" type="audio/mp3">
+  <source src="../static/audio/guitar-e-chord.ogg" type="audio/ogg">
+  <embed height="40" width="100" src="../static/audio/guitar-e-chord.mp3">
 </audio> </p>
 <p>I added distortion with the code from the
 <a href="https://github.com/overtone/overtone/blob/7d9ae954b23cdfff6a889184942a3d449ea8d5c5/src/overtone/studio/fx.clj#L96">fx-distortion2</a>
@@ -107,7 +107,7 @@ input signal values towards +1.0 and negative values towards -1.0.
 This amplifies and distorts the input wave.  A larger distortion
 parameter moves more and more of the wave to +/-1.0.  </p>
 <p>The following function graph hopefully shows this clearly.  X is the input value and Y is after the distortion is applied.  There are 3 lines shown, the 45 degree X=Y line is with 0.0 as the distortion amount.  With 0.25 as the amount, the line pushes a bit away from the straight line.  At 0.9, the distortion pushes all values well away from their input value--the distortion is dramatic.</p>
-<p><img src="static/image/distortion-function.png" width="718" height="553" /></p>
+<p><img src="../static/image/distortion-function.png" width="718" height="553" /></p>
 <p>Hopefully, this clarifies how a small sine wave input would have the
 tops of the sine wave exaggerated into a larger, more square-ish wave
 output.</p>
@@ -116,20 +116,20 @@ volume level.  It just got quiet or muddy when enough chords were
 played in sequence.  Listen to how it starts off sounding great and
 quickly becomes quite frustrating...</p>
 <p><audio controls="controls" height="40" width="100">
-  <source src="static/audio/guitar-distort-0.mp3" type="audio/mp3">
-  <source src="static/audio/guitar-distort-0.ogg" type="audio/ogg">
-  <embed height="40" width="100" src="static/audio/guitar-distort-0.mp3">
+  <source src="../static/audio/guitar-distort-0.mp3" type="audio/mp3">
+  <source src="../static/audio/guitar-distort-0.ogg" type="audio/ogg">
+  <embed height="40" width="100" src="../static/audio/guitar-distort-0.mp3">
 </audio> </p>
 <p>This was teasing me with the potential for something really cool--but
 just out of my reach.  Curiously, letting the instrument rest for 30
 seconds brought it back to being useful.</p>
 <p>After I posted my frustration to the forum it dawned on me to take a
 look at the wave file in Audacity...</p>
-<p><img src="static/image/guitar-e-chord-wav.png" width="645" height="141" /></p>
+<p><img src="../static/image/guitar-e-chord-wav.png" width="645" height="141" /></p>
 <p>Looking at the image gave me a hint to what was going on--can you see
 it?  Let's take a look at the distored output, too.  <em>Yes, the
 wav files don't line up exactly. I created these sounds live.</em></p>
-<p><img src="static/image/guitar-distort-0-wav.png" width="513" height="143" /></p>
+<p><img src="../static/image/guitar-distort-0-wav.png" width="513" height="143" /></p>
 <p>Now, I knew what was happening.  You can see in the first image
 that the acoustic waveform is entirely above the 0.0 line, by the 3rd
 chord.  Apparently, there is some sort of "DC bias" creeping into the
@@ -146,42 +146,18 @@ here</a>.</p>
 <p>With this, I finally had the distorted sound I was looking for.  Did
 you think that a computer could sound like this?</p>
 <p><audio controls="controls" height="40" width="100">
-  <source src="static/audio/guitar-distort-1.mp3" type="audio/mp3">
-  <source src="static/audio/guitar-distort-1.ogg" type="audio/ogg">
-  <embed height="40" width="100" src="static/audio/guitar-distort-1.mp3">
+  <source src="../static/audio/guitar-distort-1.mp3" type="audio/mp3">
+  <source src="../static/audio/guitar-distort-1.ogg" type="audio/ogg">
+  <embed height="40" width="100" src="../static/audio/guitar-distort-1.mp3">
 </audio> </p>
 <p>And you can see that the waveform looks balanced here:</p>
-<p><img src="static/image/guitar-distort-1-wav.png" width="443" height="140" /></p>
+<p><img src="../static/image/guitar-distort-1-wav.png" width="443" height="140" /></p>
 <p>That was a fun ride...  I'd like to thank everone on that forum post
 for all their help.  It was a fun project to create this instrument
 and I hope people use it to have fun &amp; create some awesome music.</p></div>
         <hr />
     </div>
 		
-    
-
-
- 
-
-        
-
-
- 
-
-    <div class='article'>
-        <a href="./posts/2012/11/25/how-i-made-this/"><h2>How I made this</h2></a>
-        <div class= "well small"> Sun 25 November 2012
-
-
-by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
- 
-
-
-
- </div>
-        <div class="summary">How I'm using Pelican to create this site. <a class="btn btn-info xsmall" href="./posts/2012/11/25/how-i-made-this/">read more</a></div>
-    </div>	
-				
     
         <div class="pagination">
 <ul>
@@ -190,7 +166,7 @@ by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
 
 
 
-    <li class="active"><a href="./index.html">1</a></li>
+    <li class="active"><a href=".././category/overtone.html">1</a></li>
 
 
 
@@ -200,6 +176,7 @@ by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
 </ul>
 </div>
     
+
 
  
 
@@ -217,8 +194,8 @@ by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
                 Site
                 </li>
             
-                <li><a href="./archives.html">Archives</a>
-                <li><a href="./tags.html">Tags</a>
+                <li><a href=".././archives.html">Archives</a>
+                <li><a href=".././tags.html">Tags</a>
                 <li><a href="/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
                 
             </ul>
@@ -233,9 +210,9 @@ by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
                 </li>
                 
                 
-                <li><a href="./category/blog.html">blog</a></li>
+                <li><a href=".././category/blog.html">blog</a></li>
                 
-                <li><a href="./category/overtone.html">overtone</a></li>
+                <li><a href=".././category/overtone.html">overtone</a></li>
                                    
             </ul>
             </div>
@@ -283,7 +260,7 @@ by <a class="url fn" href="./author/roger-allen.html">Roger Allen</a>
 
 <footer>
 <br />
-<p><a href=".">Roger Allen's Github Site</a> &copy; Roger Allen 2012</p>
+<p><a href="../.">Roger Allen's Github Site</a> &copy; Roger Allen 2012</p>
 </footer>
 
 </div> <!-- /container -->
