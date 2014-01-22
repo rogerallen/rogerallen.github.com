@@ -86,11 +86,10 @@ JB :
   # Settings for analytics helper
   # Set 'provider' to the analytics provider you want to use.
   # Set 'provider' to false to turn analytics off globally.
-  # FIXME rallen
   analytics :
     provider : google
     google :
-        tracking_id : 'UA-1234-123'
+        tracking_id : 'UA-36720141-1'
     #getclicky :
     #  site_id :
     #mixpanel :
