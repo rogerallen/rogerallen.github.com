@@ -21,7 +21,7 @@ sliders to allow for easy exploration of the parameter space.
 
 First, let's create and listen to what a basic sawtooth wave sounds like.
 
-```
+```clojure
  (defsynth saw-synth-1
     "a basic saw synth"
     [pitch-midi {:default 60  :min 40   :max 70  :step 1}
@@ -31,7 +31,6 @@ First, let's create and listen to what a basic sawtooth wave sounds like.
     (let [pitch-freq (midicps pitch-midi)
           saw-out (saw pitch-freq)]
       (out out-bus (pan2 (* gate saw-out) position))))
- {% endhighlight %}
 ```
 
 The input parameters each have a map with :default, :min, :max and
