@@ -4,7 +4,7 @@ category: 3d
 tags: [3d, maps, math]
 ---
 
-<script src="/assets/js/three.65.js"></script>
+<script src="/assets/js/three.min.65.js"></script>
 
 The [_azimuthal equidistant map
 projection_](http://en.wikipedia.org/wiki/Azimuthal_equidistant_projection)
