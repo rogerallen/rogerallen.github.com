@@ -1,5 +1,3 @@
-// FIXME if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
 var dim = 512;
 var scene = new THREE.Scene();
 var camera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
@@ -13,14 +11,20 @@ var lastMouseY = null;
 var curLatitude = 0.0;
 var curLongitude = 0.0;
 
+// http://www.khronos.org/message_boards/showthread.php/7170-How-to-include-shaders
+function getSourceSync(url) {
+  var req = new XMLHttpRequest();
+  req.open("GET", url, false);
+  req.send(null);
+  return (req.status == 200) ? req.responseText : null;
+};
+
 function deg2rad(deg) {
-    rad = deg*(Math.PI/180);
-    return rad;
+    return deg*(Math.PI/180);
 }
 
 function rad2deg(rad) {
-    deg = rad*(180/Math.PI);
-    return deg;
+    return rad*(180/Math.PI);
 }
 
 function handleMouseDown(event) {
@@ -34,7 +38,7 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
-    if  (!mouseDown) {//(event.button === 0) {
+    if  (!mouseDown) {
         return;
     }
     var newX = event.clientX;
@@ -45,8 +49,10 @@ function handleMouseMove(event) {
 
     //var cur_latitude = deg2rad(parseFloat(document.getElementById("cur_latitude").value));
     //var cur_longitude = deg2rad(parseFloat(document.getElementById("cur_longitude").value));
+
     curLatitude += deltaY/100.0;
     curLongitude -= deltaX/100.0;
+
     //document.getElementById("cur_latitude").value = rad2deg(cur_latitude);
     //document.getElementById("cur_longitude").value = rad2deg(cur_longitude);
 
@@ -63,22 +69,22 @@ function initCanvas() {
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
-    var worldTexture = THREE.ImageUtils.loadTexture('/assets/image/world512x256.jpg');
-    //var worldTexture = THREE.ImageUtils.loadTexture('/assets/image/world1024x512.jpg');
-    //worldTexture.magFilter = THREE.NearestFilter;
-    worldTexture.minFilter = THREE.NearestFilter; // without this, there is a line where the world wraps
+    var worldTexture = THREE.ImageUtils.loadTexture('/assets/image/world1024x512.jpg');
+    // without this, there is a line where the world wraps in the Pacific
+    worldTexture.minFilter = THREE.NearestFilter;
+    // need wrapping enabled
     worldTexture.wrapS = THREE.RepeatWrapping;
     worldTexture.wrapT = THREE.RepeatWrapping;
     uniforms = {
-        texture1: { type: "t", value: worldTexture },
-        phi1:     { type: "f", value: 0.0 },
-        lambda0:  { type: "f", value: 0.0 }
+        texture1: {type: "t", value: worldTexture},
+        phi1:     {type: "f", value: 0.0},
+        lambda0:  {type: "f", value: 0.0}
     };
-    var vertShader = document.getElementById('vertexShader').innerHTML;
-    var fragShader = document.getElementById('fragmentShader').innerHTML;
+    var vertShader = getSourceSync("/assets/js/azeqproj_vs.glsl");
+    var fragShader = getSourceSync("/assets/js/azeqproj_fs.glsl");
 
     var mapMaterial = new THREE.ShaderMaterial({
-        side:           THREE.DoubleSide,  // ARGH--very important!
+        side:           THREE.DoubleSide,
         uniforms:       uniforms,
         vertexShader:   vertShader,
         fragmentShader: fragShader
@@ -99,20 +105,24 @@ function initCanvas() {
     var map = new THREE.Mesh(mapGeometry, mapMaterial);
     scene.add(map);
 
-    var lineMaterial = new THREE.LineBasicMaterial( { color: 0xffff00 } );
+    var lineMaterial = new THREE.LineBasicMaterial({color: 0xffff00});
     var crossGeometry = new THREE.Geometry();
-    var crossDelta = 0.025;
-    crossGeometry.vertices.push( new THREE.Vector3(-crossDelta, 0, 0.1 ) );
-    crossGeometry.vertices.push( new THREE.Vector3( crossDelta, 0, 0.1 ) );
-    crossGeometry.vertices.push( new THREE.Vector3( 0, 0, 0.1 ) );
-    crossGeometry.vertices.push( new THREE.Vector3( 0,-crossDelta, 0.1 ) );
-    crossGeometry.vertices.push( new THREE.Vector3( 0, crossDelta, 0.1 ) );
-    var cross = new THREE.Line( crossGeometry, lineMaterial);
+    var crossDelta = 0.02;
+    crossGeometry.vertices.push(new THREE.Vector3(-crossDelta, 0, 0.1));
+    crossGeometry.vertices.push(new THREE.Vector3(crossDelta, 0, 0.1));
+    crossGeometry.vertices.push(new THREE.Vector3(0,-crossDelta, 0.1));
+    crossGeometry.vertices.push(new THREE.Vector3(0, crossDelta, 0.1));
+    var cross = new THREE.Line(crossGeometry, lineMaterial, THREE.LinePieces);
     scene.add(cross);
 
-    // FIXME -- extra lines
-    for(var i = 0; i < 1.0; i += 0.2) {
-        var circleGeometry = new THREE.CircleGeometry( i, 200, i, 2*Math.PI);
+    // Equatorial Circumference of the earth = 40,075.017 km
+    var COE = 40075.017;
+    var circleStep = 5000;
+    for(var km = circleStep; km < COE; km += circleStep) {
+        var i = km/COE;
+        var circleGeometry = new THREE.CircleGeometry(i, 100);
+        circleGeometry.vertices.shift(); // pop off the circle center
+        circleGeometry.vertices.verticesNeedUpdate;
         var circle = new THREE.Line(circleGeometry, lineMaterial);
         circle.translateZ(0.1);
         scene.add(circle);
