@@ -7,7 +7,6 @@ precision highp float;
 
 varying vec2      vUv;
 uniform sampler2D texture1;
-uniform vec2      offset;
 uniform float     r1;
 uniform float     r2;
 
@@ -63,7 +62,7 @@ vec2 droste(vec2 z, float r1, float r2) {
 }
 
 void main(void) {
-    vec2 zprime = droste(vUv+offset, r1, r2);
+    vec2 zprime = droste(vUv, r1, r2);
     //gl_FragColor = vec4(fract(zprime),0.0,0.0);
     //gl_FragColor = vec4(zprime,0.0,0.0);
     gl_FragColor = texture2D(texture1,zprime);

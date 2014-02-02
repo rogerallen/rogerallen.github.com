@@ -19,5 +19,8 @@ Droste effect
 <div id="slider-r2" class="dragdealer">
   <div id="slider-r2-handle" class="handle bar">r2</div>
 </div>
+<div id="slider-scaleUv" class="dragdealer">
+  <div id="slider-scaleUv-handle" class="handle bar">scaleUv</div>
+</div>
 
 <script src="/assets/js/droste.js"></script>
