@@ -1,7 +1,7 @@
 ---
 layout: post
-category: 3d
-tags: [3d, maps, math]
+category: webgl
+tags: [webgl, opengl, 3d, three.js, shaders, maps, math]
 ---
 
 <script src="/assets/js/three.min.65.js"></script>
