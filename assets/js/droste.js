@@ -77,7 +77,7 @@ function initCanvas() {
     var minr2 = 100.0;
     var maxr2 = 1000.0;
     var minscaleUv = 0.01;
-    var maxscaleUv = 1.0;
+    var maxscaleUv = 3.0;
     var r1drag = new Dragdealer('slider-r1',{
         x: linlin(minr1, maxr1, 0.0, 1.0, 1.0),
         slide: false,
