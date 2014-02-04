@@ -76,8 +76,8 @@ function initCanvas() {
     var maxr1 = 10.0;
     var minr2 = 100.0;
     var maxr2 = 1000.0;
-    var minscaleUv = 1.0;
-    var maxscaleUv = 256.0;
+    var minscaleUv = 0.01;
+    var maxscaleUv = 1.0;
     var r1drag = new Dragdealer('slider-r1',{
         x: linlin(minr1, maxr1, 0.0, 1.0, 1.0),
         slide: false,
@@ -95,11 +95,11 @@ function initCanvas() {
         }
     });
     var scaleUvdrag = new Dragdealer('slider-scaleUv',{
-        x: linlin(minscaleUv, maxscaleUv, 0.0, 1.0, 5.0),
+        x: linlin(minscaleUv, maxscaleUv, 0.0, 1.0, 0.2),
         slide: false,
         animationCallback: function(x,y) {
             uniforms.scaleUv.value = linlin(0.0, 1.0, minscaleUv, maxscaleUv, x);
-            scaleUvh.innerHTML = sprintf("scaleUv=%.0f",uniforms.scaleUv.value);
+            scaleUvh.innerHTML = sprintf("scaleUv=%.2f",uniforms.scaleUv.value);
         }
     });
 }
