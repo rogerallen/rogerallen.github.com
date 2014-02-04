@@ -45,6 +45,7 @@ vec2 cexp(vec2 a) {
 }
 
 // See:
+// http://escherdroste.math.leidenuniv.nl/
 // http://www.josleys.com/article_show.php?id=82
 // http://www.flickr.com/groups/escherdroste/discuss/72157601071820707/
 //
@@ -56,13 +57,14 @@ vec2 droste(vec2 z, float r1, float r2) {
     float alpha  = atan(log(r2/r1) / TAU);
     float f      = cos(alpha);
     vec2  beta   = f * cexp(vec2(0, alpha));
-    vec2  tmp    = z/r1;
-    vec2  zprime = cexp(cmul(beta, clog(tmp)));
+    vec2  zprime = cexp(cmul(beta, clog(z/r1)));
     return zprime;
 }
 
 void main(void) {
     vec2 zprime = droste(vUv, r1, r2);
+    zprime += vec2(0.2,0.3);
+    zprime.y = -zprime.y;
     //gl_FragColor = vec4(fract(zprime),0.0,0.0);
     //gl_FragColor = vec4(zprime,0.0,0.0);
     gl_FragColor = texture2D(texture1,zprime);
