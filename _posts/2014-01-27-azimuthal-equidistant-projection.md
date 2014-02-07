@@ -4,7 +4,8 @@ category: webgl
 tags: [webgl, opengl, 3d, shaders, maps, math]
 ---
 
-<script src="/assets/js/three.min.65.js"></script>
+<script src="/assets/js/three/three.min.65.js"></script>
+<script src="/assets/js/three/Detector.js"></script>
 
 The [_azimuthal equidistant map
 projection_](http://en.wikipedia.org/wiki/Azimuthal_equidistant_projection)

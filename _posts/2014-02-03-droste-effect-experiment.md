@@ -24,7 +24,8 @@ Perhaps I'll revisit this again someday...
 
 <script src="/assets/js/dragdealer.min.js"></script>
 <script src="/assets/js/sprintf.min.js"></script>
-<script src="/assets/js/three.min.65.js"></script>
+<script src="/assets/js/three/three.min.65.js"></script>
+<script src="/assets/js/three/Detector.js"></script>
 
 <div id="placeholder"></div>
 

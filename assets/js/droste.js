@@ -1,3 +1,5 @@
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage({id:"placeholder"});
+
 var dim = 512;
 var scene = new THREE.Scene();
 var camera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);

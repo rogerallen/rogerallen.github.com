@@ -4,7 +4,7 @@ category: webgl
 tags: [webgl, opengl, 3d, three.js, shaders, maps, math]
 ---
 
-<script src="/assets/js/three.min.65.js"></script>
+<script src="/assets/js/three/three.min.65.js"></script>
 
 I'm porting my [Azimuthal equidistant projection
 code](http://www.rogerandwendy.com/roger/azeq/index.html) to use
