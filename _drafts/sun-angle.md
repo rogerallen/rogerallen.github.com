@@ -16,5 +16,6 @@ Sun Angle
 
 <div id="slider-lat" class="dragdealer"><div id="slider-lat-handle" class="handle bar">lat</div></div>
 <div id="slider-lon" class="dragdealer"><div id="slider-lon-handle" class="handle bar">lon</div></div>
+<div id="slider-day" class="dragdealer"><div id="slider-day-handle" class="handle bar">day</div></div>
 
 <script src="/assets/js/sunangle.js"></script>
