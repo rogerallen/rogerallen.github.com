@@ -59,14 +59,14 @@ SunPos.prototype = {
         this.computeSun();
     },
     updateDate: function(newdate) {
-        console.log("updateDate"+newdate);
+        //console.log("updateDate"+newdate);
         this.date = newdate;
         this.compute();
     },
     computeJulianDay: function() {
         var year        = this.date.getUTCFullYear();
         var month       = this.date.getUTCMonth();
-        var day         = this.date.getUTCDay();
+        var day         = this.date.getUTCDate(); // ! not Day
         var part_of_day = (this.date.getUTCHours()/24.0 +
                            this.date.getUTCMinutes()/(24.0*60.0) +
                            this.date.getUTCSeconds()/(24.0*60.0*60.0) +
@@ -196,6 +196,7 @@ Observer.prototype = {
         this.positionObserver();
     },
     updateDate: function(newdate) {
+        //console.log("updateDate"+newdate);
         this.date = newdate;
         this.sunpos.updateDate(newdate);
         var y = this.date.getUTCFullYear();
@@ -413,8 +414,9 @@ function initCanvas() {
         slide: false,
         animationCallback: function(x,y) {
             var offset = linlin(0.0, 1.0, minday, maxday, x);
-            offset = Math.floor(offset);
-            viewer.updateDate(offsetDate(today, offset));
+            var offset = Math.floor(offset);
+            var offset_date = offsetDate(today, offset)
+            viewer.updateDate(offset_date);
             dayh.innerHTML = sprintf("day=%.0f", offset);
             render();
         }
