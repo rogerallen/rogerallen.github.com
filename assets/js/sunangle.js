@@ -1,3 +1,10 @@
+// todo:
+// * sun position seems 90 degrees off
+// * clock...does it work? should it change to transparent cone?
+// * line up front/back of clock texture
+// * addt'l clock texture before compass
+// * rise/set times/lines?
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage({id:"placeholder"});
 
 var scene;
@@ -65,7 +72,7 @@ SunPos.prototype = {
     },
     computeJulianDay: function() {
         var year        = this.date.getUTCFullYear();
-        var month       = this.date.getUTCMonth();
+        var month       = this.date.getUTCMonth()+1; // 0..11 + 1
         var day         = this.date.getUTCDate(); // ! not Day
         var part_of_day = (this.date.getUTCHours()/24.0 +
                            this.date.getUTCMinutes()/(24.0*60.0) +
@@ -170,7 +177,7 @@ function Observer(lat,lon,date) {
     this.date   = date; // new Date();
     this.sunpos = new SunPos(lat, lon, date);
     var y = this.date.getUTCFullYear();
-    var m = this.date.getUTCMonth();
+    var m = this.date.getUTCMonth()+1;
     var d = this.date.getUTCDate();
     // derive the angles of the corners of the clock quad for this day
     this.qpos = [new SunPos(lat, lon, new Date(y, m, d,  3, 0, 0, 0.0)),
@@ -182,6 +189,10 @@ function Observer(lat,lon,date) {
     this.compass = null;
     this.clock   = null;
     this.clockB  = null;
+    this.sun     = new THREE.DirectionalLight( 0xeeeeee );
+    this.sun.position = this.sunpos.xyz;//.set( 1, 0, 1 );
+    scene.add( this.sun );
+
 }
 Observer.prototype = {
     updateLatLon: function(newlat,newlon) {
@@ -200,7 +211,7 @@ Observer.prototype = {
         this.date = newdate;
         this.sunpos.updateDate(newdate);
         var y = this.date.getUTCFullYear();
-        var m = this.date.getUTCMonth();
+        var m = this.date.getUTCMonth()+1;
         var d = this.date.getUTCDate();
         this.qpos[0].updateDate(new Date(y, m, d,  3, 0, 0, 0.0));
         this.qpos[1].updateDate(new Date(y, m, d,  9, 0, 0, 0.0));
@@ -216,31 +227,36 @@ Observer.prototype = {
         this.clockB.applyMatrix(new THREE.Matrix4().getInverse(this.clockB.matrix));
 
         var compassMatrix = new THREE.Matrix4();
-        var mtrans        = new THREE.Matrix4().makeTranslation(0,0,0.998);
+        var mflop         = new THREE.Matrix4().makeRotationY(radians(180));
+        var mtrans        = new THREE.Matrix4().makeTranslation(0,0,2.998);
         var mlat          = new THREE.Matrix4().makeRotationX(-radians(this.lat));
         var mlon          = new THREE.Matrix4().makeRotationY(-radians(this.lon));
-        //compassMatrix.multiply(mlon);
-        //compassMatrix.multiply(mlat);
-        //compassMatrix.multiply(mtrans);
+        compassMatrix.multiply(mflop);
+        compassMatrix.multiply(mlon);
+        compassMatrix.multiply(mlat);
+        compassMatrix.multiply(mtrans);
         this.compass.applyMatrix(compassMatrix);
 
         var clockMatrix = new THREE.Matrix4();
         var msun_alt     = new THREE.Matrix4().makeRotationX(radians(this.sunpos.sun_alt));
-        //clockMatrix.multiply(mlon);
-        //clockMatrix.multiply(mlat);
-        //clockMatrix.multiply(mtrans);
-        //xclockMatrix.multiply(msun_alt);
+        clockMatrix.multiply(mflop);
+        clockMatrix.multiply(mlon);
+        clockMatrix.multiply(mlat);
+        clockMatrix.multiply(mtrans);
         this.clock.applyMatrix(clockMatrix);
 
         // turn around 180 degrees to face opposite the main clock.
         var clockBMatrix = new THREE.Matrix4();
-        var myflip       = new THREE.Matrix4().makeRotationY(radians(180));
-        //clockBMatrix.multiply(mlon);
-        //clockBMatrix.multiply(mlat);
-        //clockBMatrix.multiply(mtrans);
+        //var myflip       = new THREE.Matrix4().makeRotationY(radians(180));
+        clockBMatrix.multiply(mflop);
+        clockBMatrix.multiply(mlon);
+        clockBMatrix.multiply(mlat);
+        clockBMatrix.multiply(mtrans);
         //xclockBMatrix.multiply(msun_alt);
-        clockBMatrix.multiply(myflip);
+        //clockBMatrix.multiply(myflip);
         this.clockB.applyMatrix(clockBMatrix);
+
+        this.sun.position = this.sunpos.xyz;
     },
     addUvs: function(geom) {
         geom.faceVertexUvs[0] = [];
@@ -301,7 +317,7 @@ Observer.prototype = {
 
         scene.add(this.compass);
         scene.add(this.clock);
-        //scene.add(this.clockB);
+        scene.add(this.clockB);
 
     },
     updateClockGeom: function() {
@@ -316,11 +332,12 @@ Observer.prototype = {
         viewer.clock.geometry.verticesNeedUpdate = true;
         viewer.clock.geometry.normalsNeedUpdate = true;
         viewer.clockB.geometry.vertices = [
-            this.qpos[3].xyz,
-            this.qpos[0].xyz,
             this.qpos[2].xyz,
-            this.qpos[1].xyz
+            this.qpos[1].xyz,
+            this.qpos[3].xyz,
+            this.qpos[0].xyz
             ];
+        // FIXME - fix UVs for clockB?
         viewer.clockB.geometry.verticesNeedUpdate = true;
         viewer.clockB.geometry.normalsNeedUpdate = true;
     }
@@ -331,25 +348,21 @@ function initScene(scene) {
     viewer = new Observer(40.0, 0.0, new Date());
 
     var earth = new THREE.Mesh(
-        new THREE.SphereGeometry(1.0, 200, 200),
+        new THREE.SphereGeometry(3.0, 200, 200),
         new THREE.MeshLambertMaterial({
             map: THREE.ImageUtils.loadTexture('/assets/image/world1024x512.jpg'),
         })
     );
-    earth.rotation.y = radians(-90);
+    earth.rotation.y = radians(90);
 
-    //scene.add(earth);
+    scene.add(earth);
     viewer.initGeometry(scene)
 
-    var light = new THREE.DirectionalLight( 0xeeeeee );
-    light.position.set( 1, 0, 1 );
-    scene.add( light );
+    //light = new THREE.DirectionalLight( 0xeeeeee );
+    //light.position.set( -1, 0, -1 );
+    //scene.add( light );
 
-    light = new THREE.DirectionalLight( 0xeeeeee );
-    light.position.set( -1, 0, -1 );
-    scene.add( light );
-
-    light = new THREE.AmbientLight( 0x444444 );
+    var light = new THREE.AmbientLight( 0x444444 );
     scene.add( light );
 }
 
@@ -390,7 +403,7 @@ function initCanvas() {
     var maxday =  365/2;
     var latdrag = new Dragdealer('slider-lat',{
         x: linlin(minlat, maxlat, 0.0, 1.0, viewer.lat),
-        slide: false,
+        //slide: false,
         animationCallback: function(x,y) {
             viewer.updateLatLon(linlin(0.0, 1.0, minlat, maxlat, x),
                                 viewer.lon);
@@ -400,24 +413,27 @@ function initCanvas() {
     });
     var londrag = new Dragdealer('slider-lon',{
         x: linlin(minlon, maxlon, 0.0, 1.0, viewer.lon),
-        slide: false,
+        //slide: false,
         animationCallback: function(x,y) {
             viewer.updateLatLon(viewer.lat,
                                 linlin(0.0, 1.0, minlon, maxlon, x));
-            lonh.innerHTML = sprintf("lon=%.0f",viewer.lon);
+            lonh.innerHTML = sprintf("lon=%.2f",viewer.lon);
             render();
         }
     });
     var today = new Date();
     var daydrag = new Dragdealer('slider-day',{
         x: linlin(minday, maxday, 0.0, 1.0, 0.0),
-        slide: false,
+        //slide: false,
         animationCallback: function(x,y) {
             var offset = linlin(0.0, 1.0, minday, maxday, x);
             var offset = Math.floor(offset);
             var offset_date = offsetDate(today, offset)
             viewer.updateDate(offset_date);
-            dayh.innerHTML = sprintf("day=%.0f", offset);
+            dayh.innerHTML = sprintf("%.0f/%.0f/%.0f",
+                                     offset_date.getUTCFullYear(),
+                                     offset_date.getUTCMonth()+1,
+                                     offset_date.getUTCDate());
             render();
         }
     });
@@ -436,4 +452,4 @@ initCanvas();
 animate();
 // FIXME -- how can we get this to always work?
 // cause a controls change
-camera.position.z = -4.0;
+camera.position.z = -20.0;
