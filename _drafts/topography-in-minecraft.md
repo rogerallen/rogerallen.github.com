@@ -24,13 +24,13 @@ get frustrated and give up...but after two hours of meetings he was
 still happily exploring and creating houses, spheres and blocks in the
 minecraft world--all by himself.  Granted, he has learned some basic
 JavaScript before, but it was wonderful that he was able to get going
-like this.  The other minecraft mod systems could take a lesson from
+so easily.  The other minecraft mod systems could take a lesson from
 this as I find their documentation pretty opaque.
 
 Digital Elevation Models in MineCraft
 -------------------------------------
 
-<img src="/assets/image/lakeo_minecraft_med.jpg" width=640" height"384" />
+<img src="/assets/image/lakeo_minecraft_med.jpg" width="640" height"384" />
 
 *As you can see, the Minecraft Oregon is nearly indistingushable from
  the actual Oregon*
@@ -40,30 +40,259 @@ local topography in Minecraft.  With ScriptCraft, it turned out to be
 pretty straightforward and I got a request from @walter on twitter to
 describe the process.
 
+I'm metaphorically standing on the shoulders of Bjørn Sandvik who
+wrote [this great blog
+entry](http://blog.thematicmapping.org/2013/10/terrain-building-with-threejs-part-1.html)
+that educated and enabled me to decode the DEM data easily.
+
 As an overview, here are the basics:
 
+0. Get the GDAL software package.
 1. Get the elevation data.
 2. Create & crop a greyscale image where the grey level is proportional to the height in your elevation data.
 3. Use that greyscale image to also create a material image.  Different colors in this image represent different materials like water, grass, sand, etc.
 4. Convert these images to JSON-formatted arrays.
 5. Finally, create a ScriptCraft function to use the data in the arrays to create the topography in Minecraft.
 
+<h4>Getting the GDAL software package</h4>
+
+From Bjørn's site, I learned of the wonderful
+[GDAL](http://www.gdal.org/) software package.  This enables the
+conversion of elevation files to images that are more straightforward
+to get data from.  Happily, it was easily installed on Ubuntu 12.04
+LTS via `sudo apt-get install gdal-bin`.  YMMV.
+
 <h4>Getting Elevation Data</h4>
 
-blah
+Next, is getting the Digital Elevation data or DEM files.  For myself,
+I found [this site for Oregon DEM
+files](http://www.oregon.gov/DAS/CIO/GEO/pages/data/dems.aspx) via a
+google search.  I believe that DEM files are also available via
+[http://earthexplorer.usgs.gov/](http://earthexplorer.usgs.gov/), but
+I have not used this service yet.
+
+You will want to know the exact latitude and longitude of the region
+you want to model.  As always, google is your friend here.
+
+After a bit of tedious downloading and looking inside files via the
+[gdalinfo](http://www.gdal.org/gdalinfo.html) program, I found that
+the data I wanted was in this DEM file:
+ftp://159.121.106.159/elevation/DEM/baseline97/rawdems/45122/d/5122d6dg.zip
 
 <h4>Create Elevation Image</h4>
 
-blah
+Unzipping that DEM file, I followed the steps from Bjørn's site.
+
+```
+# First, build a virtual dataset.  (I only used one DEM file)
+> gdalbuildvrt lakeo.vrt 5122D6DG
+
+# Second, convert that into a GeoTIFF
+> gdalwarp lakeo.vrt lakeo.tif
+
+# Third, getting relevant info from the GeoTIFF file.
+> gdalinfo -mm lakeo.tif
+# in the output, these lines were the most relevant
+Size is 328, 466
+Pixel Size = (30.0, -30.0)
+Computed Min/Max=0.000,1064.000
+
+# Finally, given the min/max info, scale it to fit in an 8-bit PNG
+> gdal_translate -scale 0 1064 0 255 -of PNG lakeo.tif lakeo.png
+```
+
+These steps create a 328x466 image where the normal 0 to 1064 meter elevation
+is encoded in the greyscale values between 0 to 255.
+
+<img src="/assets/image/lakeo.png" width="328" height"466" />
+
+I used [gimp](http://www.gimp.org/) to select a smaller image 200x140
+pixels of the area I wanted to use in minecraft.  I just cropped and
+saved this as `lakeo_clip.png`.
+
+<img src="/assets/image/lakeo_clip.png" width="200" height"140" />
 
 <h4>Create Material Image</h4>
 
-blah
+At his point, you can create a heightmap of the terrain, but I'd like
+to have different types of terrain, including water for a lake.
+
+By converting this greyscale image to a RGB color image and using the
+select-color tool in gimp, I was able to quickly create a 3-color
+(blue, green, yellow) map to use for describing the different
+materials to place in minecraft.
+
+<img src="/assets/image/lakeo_clip2.png" width="200" height"140" />
 
 <h4>Convert Images to JSON</h4>
 
-blah
+Now, we need to get this image information into a format that is
+usable in Javascript.  There are a lot of ways to do this and I chose
+to use the python Image module.
+
+```python
+#!/usr/bin/python
+import Image
+import json
+
+# load elevation data
+i = Image.open("lakeo_clip.png")
+d = i.load()
+width = i.size[0]
+height = i.size[1]
+
+heightmap = []
+for y in range(height):
+    hh = []
+    for x in range(width):
+        # y-invert image
+        hh.append(d[(x,height-1-y)][0])
+    heightmap.append(hh)
+
+# convert color data to 0,1,2
+def color2blk(c):
+    if c == (255, 255, 0, 255):
+        # yellow = high elevation
+        return 2
+    elif c == (0, 255, 0, 255):
+        # green = low elevation
+        return 1
+    elif c == (0, 0, 255, 255):
+        # blue = water
+        return 0
+    else:
+        print "Bad Color:",c
+        assert(0)
+
+# load color data
+i2 = Image.open("lakeo_clip2.png")
+b = i2.load()
+assert i2.size[0] == i.size[0]
+assert i2.size[1] == i.size[1]
+
+blockmap = []
+for y in range(height):
+    hh = []
+    for x in range(width):
+        # y-invert image
+        blk = color2blk(b[(x,height-1-y)])
+        hh.append(blk)
+    blockmap.append(hh)
+
+data = { "width": width,
+         "height": height,
+         "elevation": heightmap,
+         "blocks": blockmap,
+     }
+
+with open('lakeo_clip.json', 'w') as outfile:
+    json.dump(data, outfile)
+
+```
+
+Hopefully the code is self-explanatory.  One thing to notice is that I
+y-invert the image.  This is because the JavaScript code creates
+terrain assuming the origin is in the lower-left of the image.  The
+data is stored starting from the upper-left.  Y-inverting fixes this
+mismatch.
+
+A JSON file is saved.  I just copied the relevant parts of the JSON
+file into the function described in the next section.
 
 <h4>Create the ScriptCraft Function</h4>
 
-blah
+The function I created to instantiate the elevation data is [in this
+gist](https://gist.github.com/rogerallen/c12450d2dfdc77dd1fd3).  The
+interesting part is copied below, but the gist also has the elevation
+data stored in the `lakeo_elevation` and `lakeo_blocks` 2D arrays.
+
+For each type of material, I create a lower layer and a top layer to
+give a bit of interest to the topography.  This could certainly be
+made more interesting, but this is just V1.0...
+
+The code rasterizes the terrain and creates boxes with 3x3 bases where the height is derived from the `lakeo_elevation` array.
+
+```javascript
+var lakeo = function() {
+    // saves the drone position so it can return there later
+    this.chkpt('lakeo');
+    var x, y;
+    // each block is 3x3.  Adust as you'd like.  Fullscale is 30x30
+    var w = 3;
+    for(y = 0; y < 140; y++ ) {
+        for(x = 0; x < 200; x++) {
+            var h = lakeo_elevation[y][x];
+            var b = lakeo_blocks[y][x];
+            if(b === 0) {
+                // water
+                var h2 = w*4;
+                var h1 = h - h2;
+                if(h1 > 0) {
+                    this.box(blocks.clay,w,h1,w)
+                        .up(h1)
+                        .box(blocks.water,w,h2,w)
+                        .down(h1);
+                } else {
+                    this.box(blocks.water,w,h,w)
+                }
+            } else if(b === 1) {
+                // grass-covered block
+                var h2 = w;
+                var h1 = h - h2;
+                if(h1 > 0) {
+                    this.box(blocks.dirt,w,h1,w)
+                        .up(h1)
+                        .box(blocks.grass,w,h2,w)
+                        .down(h1);
+                } else {
+                    this.box(blocks.grass,w,h,w)
+                }
+            } else if(b === 2) {
+                // high grass-covered block
+                var h3 = w;
+                var h2 = w*3;
+                var h1 = h - h2 - h3;
+                if(h1 > 0) {
+                    this.box(blocks.stone,w,h1,w)
+                        .up(h1)
+                        .box(blocks.dirt,w,h2,w)
+                        .up(h2)
+                        .box(blocks.grass,w,h3,w)
+                        .down(h1+h2);
+                } else {
+                    this.box(blocks.grass,w,h,w)
+                }
+            }
+            this.right(w);
+        }
+        this.left(x*w).fwd(w);
+    }
+    // return to where we started
+    return this.move('lakeo');
+};
+// Okay this extends the drone object to include this fn
+var Drone = require('../drone/drone').Drone;
+Drone.extend('lakeo',lakeo);
+
+// ...code continues with the 2D arrays of data...
+```
+
+So, with this file in your plugins directory, at this point you should
+face toward north, point at a square in front of you and type:
+
+```
+/js lakeo()
+```
+
+and watch the topography be created.  Be warned, it takes several
+hours to finish.  You may want to start small (10x10 instead of
+200x140) if you are experimenting on your own.  If anyone has ideas on
+how to make this run faster, I'd love to hear about it.
+
+I've dashed this off quickly so I may have missed some details.  I'm
+also new to ScriptCraft so I may not be doing something as well as
+could be done.  Let me know on twitter if I need to fix something.
+But, I hope this shows how you, too, can model your neighborhood
+terrain in Minecraft.
+
+Cheers!
