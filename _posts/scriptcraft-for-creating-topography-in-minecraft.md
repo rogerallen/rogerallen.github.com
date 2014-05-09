@@ -4,28 +4,31 @@ category: minecraft
 tags: [minecraft, scriptcraft, topography, geography, maps]
 ---
 
-I'm finding [Minecraft](https://minecraft.net/) along with
-[ScriptCraft](http://scriptcraftjs.org/) is an excellent way to
-motivate my son to learn programming.  [Walter
+I'm finding [ScriptCraft](http://scriptcraftjs.org/) is an excellent
+way to motivate my son to learn programming.  [Walter
 Higgins](https://twitter.com/walter) has created a fantastic
-environment for interacting with the minecraft world.  First steps can
-be taken from within the game itself, manipulating blocks to create
-houses and geometrical shapes.  Next, you can save your programs as
-files and reload the code as you edit it in a text editor.
+environment for interacting with the
+[minecraft](https://minecraft.net/) world.  First steps can be taken
+from within the game itself, manipulating blocks to create houses and
+geometrical shapes.  Next, you can save your programs as files and
+reload the code as you edit it in a text editor.
 
-The best part of ScriptCraft for me was the excellent introductory
-documentation.  When I first showed my son the system, I could only
-give him the briefest of introductions as I had a phone meeting to
-attend.  Then I pointed him at [the Young Person's Guide to
+The most impressive part of ScriptCraft so far is the excellent
+introductory documentation.  When I first showed my son the system, I
+could only give him the briefest of introductions as I had a phone
+meeting to attend.  Then I pointed him at [the Young Person's Guide to
 Programming
 Minecraft](https://github.com/walterhiggins/ScriptCraft/blob/master/docs/YoungPersonsGuideToProgrammingMinecraft.md#the-young-persons-guide-to-programming-in-minecraft)
 and had to call into the meeting.  I was worried that he was going to
-get frustrated and give up...but after two hours of meetings he was
-still happily exploring and creating houses, spheres and blocks in the
+get frustrated and give up...but after the meeting he was still
+happily exploring and creating houses, spheres and blocks in the
 minecraft world--all by himself.  Granted, he has learned some basic
 JavaScript before, but it was wonderful that he was able to get going
 so easily.  The other minecraft mod systems could take a lesson from
-this as I find their documentation pretty opaque.
+this as I have found their documentation only covers the very basics.
+
+After learning the basics of ScriptCraft, we wondered if we could
+recreate our local region in minecraft?
 
 Digital Elevation Models in MineCraft
 -------------------------------------
@@ -35,17 +38,18 @@ Digital Elevation Models in MineCraft
 *As you can see, the Minecraft Oregon is nearly indistingushable from
  the actual Oregon*
 
-An idea I've been kicking around for a while is trying to model our
-local topography in Minecraft.  With ScriptCraft, it turned out to be
-pretty straightforward and I got a request from @walter on twitter to
-describe the process.
+With ScriptCraft, the [Geospatial Data Abstraction Library
+(GDAL)](http://www.gdal.org) and some basic programming, I was able to
+get our local region's topography into minecraft and posted my first
+picture on twitter.  After a request from @walter on twitter to
+describe the process, I'm writing it down here.
 
 I'm metaphorically standing on the shoulders of Bjørn Sandvik who
-wrote [this great blog
+wrote [this blog
 entry](http://blog.thematicmapping.org/2013/10/terrain-building-with-threejs-part-1.html)
-that educated and enabled me to decode the DEM data easily.
+that enabled me to decode the DEM data easily.
 
-As an overview, here are the basics:
+Here is the overview of the process:
 
 0. Get the GDAL software package.
 1. Get the elevation data.
@@ -56,23 +60,27 @@ As an overview, here are the basics:
 
 <h4>Getting the GDAL software package</h4>
 
-From Bjørn's site, I learned of the wonderful
-[GDAL](http://www.gdal.org/) software package.  This enables the
-conversion of elevation files to images that are more straightforward
-to get data from.  Happily, it was easily installed on Ubuntu 12.04
-LTS via `sudo apt-get install gdal-bin`.  YMMV.
+From Bjørn's site, I discovered the [GDAL](http://www.gdal.org/)
+software package.  Happily, it was easily installed on Ubuntu
+12.04 LTS via `sudo apt-get install gdal-bin`.
+
+GDAL enables the conversion of elevation files to images.  Images are
+easier to use for the rest of the process than the special-format DEM
+files.
 
 <h4>Getting Elevation Data</h4>
 
-Next, is getting the Digital Elevation data or DEM files.  For myself,
-I found [this site for Oregon DEM
+Of course, you'll need to get the basic topography for your
+region. These are found in Digital Elevation data or DEM files.  For
+myself, I found [this site for Oregon DEM
 files](http://www.oregon.gov/DAS/CIO/GEO/pages/data/dems.aspx) via a
 google search.  I believe that DEM files are also available via
 [http://earthexplorer.usgs.gov/](http://earthexplorer.usgs.gov/), but
 I have not used this service yet.
 
 You will want to know the exact latitude and longitude of the region
-you want to model.  As always, google is your friend here.
+you want to model in order to find the DEM file (or files) you need.
+As always, Google is your friend here.
 
 After a bit of tedious downloading and looking inside files via the
 [gdalinfo](http://www.gdal.org/gdalinfo.html) program, I found that
@@ -81,23 +89,23 @@ ftp://159.121.106.159/elevation/DEM/baseline97/rawdems/45122/d/5122d6dg.zip
 
 <h4>Create Elevation Image</h4>
 
-Unzipping that DEM file, I followed the steps from Bjørn's site.
+Unzipping the one DEM file I needed, I followed [the steps from Bjørn's site](http://blog.thematicmapping.org/2013/10/terrain-building-with-threejs-part-1.html).
 
 ```
-# First, build a virtual dataset.  (I only used one DEM file)
+# Build a virtual dataset.  (I only used one DEM file)
 > gdalbuildvrt lakeo.vrt 5122D6DG
 
-# Second, convert that into a GeoTIFF
+# Convert virtual dataset into a GeoTIFF
 > gdalwarp lakeo.vrt lakeo.tif
 
-# Third, getting relevant info from the GeoTIFF file.
+# Get relevant info from the GeoTIFF file.
 > gdalinfo -mm lakeo.tif
 # in the output, these lines were the most relevant
 Size is 328, 466
 Pixel Size = (30.0, -30.0)
 Computed Min/Max=0.000,1064.000
 
-# Finally, given the min/max info, scale it to fit in an 8-bit PNG
+# Given the min/max info, scale it to fit in an 8-bit PNG
 > gdal_translate -scale 0 1064 0 255 -of PNG lakeo.tif lakeo.png
 ```
 
@@ -106,21 +114,24 @@ is encoded in the greyscale values between 0 to 255.
 
 <img src="/assets/image/lakeo.png" width="328" height"466" />
 
-I used [gimp](http://www.gimp.org/) to select a smaller image 200x140
-pixels of the area I wanted to use in minecraft.  I just cropped and
-saved this as `lakeo_clip.png`.
+I was a bit worried (for good reason, I found later) that a region
+this size would take too long to create in minecraft.  Because this is
+just a PNG image, I used [gimp](http://www.gimp.org/) to select a
+smaller 200x140 pixel area to use.  I just cropped and saved this as
+`lakeo_clip.png`.
 
 <img src="/assets/image/lakeo_clip.png" width="200" height"140" />
 
 <h4>Create Material Image</h4>
 
-At his point, you can create a heightmap of the terrain, but I'd like
-to have different types of terrain, including water for a lake.
+At this point, you can create a heightmap of the terrain, but to have
+different types of terrain, including water for a lake, you need some
+additional data.
 
 By converting this greyscale image to a RGB color image and using the
-select-color tool in gimp, I was able to quickly create a 3-color
-(blue, green, yellow) map to use for describing the different
-materials to place in minecraft.
+select-color tool in gimp, I was able to create a 3-color (blue,
+green, yellow) map to use for describing the different materials to
+place in minecraft.
 
 <img src="/assets/image/lakeo_clip2.png" width="200" height"140" />
 
@@ -190,34 +201,39 @@ with open('lakeo_clip.json', 'w') as outfile:
 
 ```
 
-Hopefully the code is self-explanatory.  One thing to notice is that I
-y-invert the image.  This is because the JavaScript code creates
-terrain assuming the origin is in the lower-left of the image.  The
-data is stored starting from the upper-left.  Y-inverting fixes this
-mismatch.
+Hopefully the code is self-explanatory.  It is just converting the PNG
+imagery into 2D arrays and saving them as JSON data.  One thing to
+notice is that I y-invert the image.  This is because the JavaScript
+code creates terrain assuming the origin is in the lower-left of the
+image.  But, the PNG data is stored starting from the upper-left.
+Y-inverting fixes this mismatch.
 
-A JSON file is saved.  I just copied the relevant parts of the JSON
-file into the function described in the next section.
+I just copied the relevant parts of the JSON file as text and pasted
+it into the JavaScript function described in the next section.
 
 <h4>Create the ScriptCraft Function</h4>
 
-The function I created to instantiate the elevation data is [in this
+The ScriptCraft function I created to instantiate the elevation data
+is [in this
 gist](https://gist.github.com/rogerallen/c12450d2dfdc77dd1fd3).  The
 interesting part is copied below, but the gist also has the elevation
 data stored in the `lakeo_elevation` and `lakeo_blocks` 2D arrays.
 
+The code rasterizes the terrain and creates boxes with 3x3 bases where
+the height is derived from the `lakeo_elevation` array.  You can
+adjust as you'd like.  Fullscale would have this basic block as 30x30,
+but we liked the exaggerated reality of a 3x3 block.
+
 For each type of material, I create a lower layer and a top layer to
 give a bit of interest to the topography.  This could certainly be
 made more interesting, but this is just V1.0...
-
-The code rasterizes the terrain and creates boxes with 3x3 bases where the height is derived from the `lakeo_elevation` array.
 
 ```javascript
 var lakeo = function() {
     // saves the drone position so it can return there later
     this.chkpt('lakeo');
     var x, y;
-    // each block is 3x3.  Adust as you'd like.  Fullscale is 30x30
+    // each block is 3x3.
     var w = 3;
     for(y = 0; y < 140; y++ ) {
         for(x = 0; x < 200; x++) {
