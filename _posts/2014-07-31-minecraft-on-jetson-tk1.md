@@ -174,7 +174,7 @@ Note that you will have to replace `xxx` and `yyy` in the commandline
 ```
 
 `xxx` is your username that you used to register Minecraft.  The `yyy`
-token is from the `.minecraft/launcher_profiles.json` "clientToken".
+token is from the `~/.minecraft/launcher_profiles.json` "clientToken".
 It is a long string that should have been setup when you did the first
 run of minecraft.
 
