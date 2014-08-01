@@ -16,7 +16,9 @@ at 1920x1080.  Hopefully the instructions below can get it working for
 you, too.
 
 Just to be clear, you will need to have purchased a Minecraft license
-to get this running.
+to get this running.  Also, this is not a simple hack.  Please don't
+attempt this unless you have some intermediate linux knowledge and
+understand the commands you are running.
 
 ### Install Java
 
