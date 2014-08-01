@@ -65,30 +65,29 @@ Get the LWJGL source from [Github](http://github.com):
 git clone https://github.com/LWJGL/lwjgl.git
 ```
 
-There is a bug in the LWJGL linux build in that it assumes an `-L${java.home}/lib/i386`
-library path instead of conditionally using `-L${java.home}/lib/arm` libs.  I fixed this
-locally with a small edit below while LWJGL works on [Issue
+Before we compile, there is a bug in the LWJGL linux build that we
+need to fix first. In the file `platform_build/linux_ant/build.xml`
+you need to change this line (near the top):
+
+```
+<property name="libs32" value="-L/usr/X11R6/lib -L/usr/X11/lib -lm -lX11 -lXext -lXcursor -lXrandr -lXxf86vm -lpthread -L${java.home}/lib/i386 -ljawt" />
+```
+
+to be this instead: (just changing the i386 to arm)
+
+```
+<property name="libs32" value="-L/usr/X11R6/lib -L/usr/X11/lib -lm -lX11 -lXext -lXcursor -lXrandr -lXxf86vm -lpthread -L${java.home}/lib/arm -ljawt" />
+```
+
+These are some compilation flags that ant passes to gcc when
+compiling. There isn't any `$JAVA_HOME/lib/i386` directory on Jetson.
+Instead the compiler needs to look in `$JAVA_HOME/lib/arm`.  We'll
+just fix this locally while LWJGL works on [Issue
 74](https://github.com/LWJGL/lwjgl/issues/74#issuecomment-50048448).
 
-```
-$ git diff
-diff --git a/platform_build/linux_ant/build.xml b/platform_build/linux_ant/build.xml
-index f94b5cb..b0f800c 100644
---- a/platform_build/linux_ant/build.xml
-+++ b/platform_build/linux_ant/build.xml
-@@ -4,7 +4,7 @@
-        <property name="native" location="../../src/native"/>
-        <property name="libname32" value="liblwjgl.so"/>
-        <property name="libname64" value="liblwjgl64.so"/>
--       <property name="libs32" value="-L/usr/X11R6/lib -L/usr/X11/lib -lm -lX11 -lXext -lXcursor -lXrandr -lXxf86vm -lpthread -L${java.home}/lib/i386 -ljawt" />
-+       <property name="libs32" value="-L/usr/X11R6/lib -L/usr/X11/lib -lm -lX11 -lXext -lXcursor -lXrandr -lXxf86vm -lpthread -L${java.home}/lib/arm -ljawt" />
-        <property name="libs64" value="-L/usr/X11R6/lib64 -L/usr/X11/lib64 -lm -lX11 -lXext -lXcursor -lXrandr -lXxf86vm -lpthread -L${java.home}/lib/amd64 -ljawt" />
-        <property name="cflags32" value="-O2 -Wall -c -fPIC -std=c99 -Wunused"/>
-```
-
-Due to a different "apt" binary in both the java sdk and in /usr/bin,
-there needs to be something done for your path while you build with
-`ant`.  The following worked for me.
+Finally, due to a different "apt" binary in both the java sdk and in
+/usr/bin, there needs to be something done for your path while you
+build with `ant`.  The following worked for me.
 
 ```
 cd lwjgl
