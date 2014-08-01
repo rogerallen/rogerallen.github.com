@@ -96,7 +96,7 @@ cd lwjgl
 env PATH=${JAVA_HOME}/bin:${PATH} ant
 ```
 
-The above should build a `lib/liblwjgl.so` native shared library.
+The above should build a `libs/linux/liblwjgl.so` native shared library.
 
 ### Build OpenAL
 
@@ -134,7 +134,7 @@ For example: (adjust paths as needed)
 ```
 mkdir -p ~/Minecraft/Natives
 cp ~/Dev/openal-soft-1.15.1/build/libopenal.so.1.15.1 ~/Minecraft/Natives/libopenal.so
-cp ~/Dev/lwjgl/lib/liblwjgl.so ~/Minecraft/Natives
+cp ~/Dev/lwjgl/libs/linux/liblwjgl.so ~/Minecraft/Natives
 ```
 
 ### Preliminary Run of Minecraft
