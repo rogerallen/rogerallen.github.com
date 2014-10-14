@@ -52,13 +52,14 @@ requires only one small edit to the code and I was grateful to follow
 in the footsteps of [this developer's
 instructions](http://it.toolbox.com/wiki/index.php/Developing_on_Raspberry_Pi).
 
-These are the packages I needed installed:
+These are the packages I needed installed: <i>(Oct 2014 update--added libxt-dev)</i>
 
 ```
 sudo apt-get install git ant
 sudo apt-get install libxcursor-dev # X cursor management library (development files)
 sudo apt-get install libxxf86vm-dev # X11 XFree86 video mode extension library (development headers)
 sudo apt-get install libxrandr-dev  # X11 RandR extension library (development headers)
+sudo apt-get install libxt-dev      # X11 Toolkit Intrinsics library (development headers)
 ```
 
 Get the LWJGL source from [Github](http://github.com):
@@ -154,13 +155,16 @@ launcher.  **I'm sure this commandline will change in the future, so
 make note of this and if you are running a version of Minecraft
 different than 1.7.10, you will need to adjust.**
 
-I've created a **[gist
+**I've created a [gist
 here](https://gist.github.com/rogerallen/91526c9c8be1a82881e0) that
-has the commandline** I'm using.  Basically, all I did was change the
--Djava.library.path to point to our native libraries and add the last
-part of the commandline starting with `--username`.  This last bit is
-not listed in the terminal output.  These are additional parameters
-that I only found via a [google
+has the commandline** that I'm using. <i>(Oct 2014 update--added
+Version 1.8 support)</i>
+
+Basically, all I did was change the -Djava.library.path to point to
+our native libraries and add the last part of the commandline starting
+with `--username`.  This last bit is not listed in the terminal
+output.  These are additional parameters that I only found via a
+[google
 search](http://gaming.stackexchange.com/questions/156000/launching-minecraft-1-7-4-from-the-command-line). **Again,
 I'm sure these options will change going forward.  As versions change,
 perhaps we can work together to maintain these commandlines via the
