@@ -25,8 +25,7 @@ author :
 #
 production_url : http://rogerallen.github.io
 
-# per @holman tweet
-markdown: redcarpet
+markdown: kramdown
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
@@ -65,7 +64,7 @@ JB :
   #   http://s3.amazonaws.com/yoursite/themes/watermelon
   #   /assets
   #
-  ASSET_PATH : false
+  ASSET_PATH : /assets/themes/jb-svbtle
 
   # These paths are to the main pages Jekyll-Bootstrap ships with.
   # Some JB helpers refer to these paths; change them here if needed.

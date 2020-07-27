@@ -33,7 +33,7 @@ recreate our local region in minecraft?
 Digital Elevation Models in MineCraft
 -------------------------------------
 
-<img src="/assets/image/lakeo_minecraft_med.jpg" width="640" height"384" />
+![image_lakeo](/assets/image/lakeo_minecraft_med.jpg){:width="640px" height="384px"}
 
 *As you can see, the Minecraft Oregon is nearly indistingushable from
  the actual Oregon*
@@ -112,7 +112,8 @@ Computed Min/Max=0.000,1064.000
 These steps create a 328x466 image where the normal 0 to 1064 meter elevation
 is encoded in the greyscale values between 0 to 255.
 
-<img src="/assets/image/lakeo.png" width="328" height"466" />
+![image_lakeo](/assets/image/lakeo.png){:width="328px" height="466px"}
+
 
 I was a bit worried (for good reason, I found later) that a region
 this size would take too long to create in minecraft.  Because this is
@@ -120,7 +121,7 @@ just a PNG image, I used [gimp](http://www.gimp.org/) to select a
 smaller 200x140 pixel area to use.  I just cropped and saved this as
 `lakeo_clip.png`.
 
-<img src="/assets/image/lakeo_clip.png" width="200" height"140" />
+![image_lakeo](/assets/image/lakeo_clip.png){:width="200px" height="140px"}
 
 <h4>Create Material Image</h4>
 
@@ -133,7 +134,7 @@ select-color tool in gimp, I was able to create a 3-color (blue,
 green, yellow) map to use for describing the different materials to
 place in minecraft.
 
-<img src="/assets/image/lakeo_clip2.png" width="200" height"140" />
+![image_lakeo](/assets/image/lakeo_clip2.png){:width="200px" height="140px"}
 
 <h4>Convert Images to JSON</h4>
 

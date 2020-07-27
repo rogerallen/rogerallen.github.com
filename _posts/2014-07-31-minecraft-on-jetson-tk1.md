@@ -4,7 +4,7 @@ category: jetson
 tags: [minecraft, linux, ubuntu, lwjgl, openal, nvidia, jetson-tk1]
 ---
 
-<img src="/assets/image/jetson_minecraft_med.jpg" width="645" height="490" />
+![jetson playing minecraft](/assets/image/jetson_minecraft_med.jpg){:width="645px" height="490px"}
 
 Call me crazy, but with an [NVIDIA Jetson
 TK1](https://developer.nvidia.com/jetson-tk1) in my hands, the first

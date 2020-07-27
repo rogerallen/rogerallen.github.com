@@ -54,7 +54,7 @@ amounts.  The 45 degree Y=X line is a distortion amount of 0.0.  With
 line.  At 0.9, the function dramatically pushes all values well away
 from their input value.
 
-<img src="/assets/image/distortion-function.png" width="718" height="553" />
+![distortion_function](/assets/image/distortion-function.png){:width="718px" height="553px"}
 
 So, a small sine wave input would have the tops of the sine wave
 exaggerated into a larger, more square-ish wave output.  With this
@@ -81,13 +81,13 @@ really cool--but just out of my reach.
 After I posted my frustration to the forum it dawned on me to take a
 look at the wave file in Audacity...
 
-<img src="/assets/image/guitar-e-chord-wav.png" width="645" height="141" />
+![e-chord wave](/assets/image/guitar-e-chord-wav.png){:width="645px" height="141px"}
 
 Looking at the image gave me a hint to what was going on--can you see
 it?  Let's take a look at the distored output, too.  *Yes, the wav
 files don't line up exactly. I created these sounds live.*
 
-<img src="/assets/image/guitar-distort-0-wav.png" width="513" height="143" />
+![e-chord distort wav](/assets/image/guitar-distort-0-wav.png){:width="513px" height="143px"}
 
 Now, I knew what was happening.  Apparently, there is some sort of "DC
 bias" creeping into the waveform from the <code>pluck</code> ugen over
@@ -118,7 +118,7 @@ this?
 
 And you can see that the waveform looks balanced here:
 
-<img src="/assets/image/guitar-distort-1-wav.png" width="443" height="140" />
+![e-chord distort wav](/assets/image/guitar-distort-1-wav.png){:width="443px" height="140px"}
 
 I'd like to thank everone on that forum post for all their help.  It
 was a nice project to create this instrument, learn about Overtone,

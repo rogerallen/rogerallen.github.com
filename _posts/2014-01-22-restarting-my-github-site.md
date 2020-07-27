@@ -56,7 +56,7 @@ I want to be able to demonstrate audio...
 
 I want to enclose images...
 
-<img src="/assets/image/guitar-e-chord-wav.png" width="645" height="141" />
+![e-chord wave](/assets/image/guitar-e-chord-wav.png){:width="645px" height="141px"}
 
 And sometimes, I want to discuss math with the clarity of a real equation via
 [MathJax](http://www.mathjax.org/)
