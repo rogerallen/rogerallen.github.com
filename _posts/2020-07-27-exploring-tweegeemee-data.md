@@ -97,3 +97,5 @@ The database of 2,000 tweets is [here](https://drive.google.com/file/d/152PGTHKm
 This notebook assumes you are familiar with Google Colab, SQL and the other imported libraries.  As always, [Stack Overflow](https://stackoverflow.com/) is going to be your friend.
 
 I hope you enjoy exploring [@tweegeemee](https://twitter.com/tweegeemee) data.  If you find any interesting results, please share them with [@tweegeemee](https://twitter.com/tweegeemee) and [@RogerAllen](https://twitter.com/RogerAllen).
+
+*Thanks to [Kyle Oba @mudphone](https://twitter.com/mudphone) for his help test-driving the Google Colab flow.*
