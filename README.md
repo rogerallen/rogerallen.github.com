@@ -6,6 +6,35 @@ and
 [https://github.com/kevinxueliang/jb-svbtle](https://github.com/kevinxueliang/jb-svbtle)
 along with some changes of my own.
 
+## Update 2020-12-29
+
+Reset on Ubuntu 20.04.  Let's see...
+
+```
+> sudo apt-get install ruby ruby-dev make build-essential
+
+> ruby --version 
+ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux-gnu]
+
+
+> vi ~/.bashrc
+  # ruby & jekyll exports
+  export GEM_HOME=$HOME/gems
+  export PATH=$HOME/gems/bin:$PATH
+
+> gem install jekyll bundler
+  ...
+  Please check your Rails app for 'config.i18n.fallbacks = true'.
+  If you're using I18n (>= 1.1.0) and Rails (< 5.2.2), this should be
+  'config.i18n.fallbacks = [I18n.default_locale]'.
+  If not, fallbacks will be broken in your app by I18n 1.1.x.
+  ...
+
+> jekyll serve 
+  Works! (yay!)
+
+```
+
 ## Update 2020-07-26
 
 Setting up on Ubuntu 16.04 after a long hiatus.  It's always so painful transferring this to a new 
