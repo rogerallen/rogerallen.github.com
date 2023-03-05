@@ -116,6 +116,44 @@ class PlanetLine {
         positions[4] = y;
 
     }
+
+    // return normalized slope
+    getSlope() {
+        const dx = this.p1.x - this.p0.x;
+        const dy = this.p1.y - this.p0.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        return {
+            x: dx / len,
+            y: dy / len
+        }
+    }
+
+}
+
+class Angle {
+    constructor(l0, l1) {
+        this.l0 = l0;
+        this.l1 = l1;
+        this.angle = 0;
+        this.update();
+    }
+
+    update() {
+        // s0 is line that points to 'midnight'
+        const s0 = this.l0.getSlope();
+        // rotate s0 by 90 degrees to get horizon line
+        const hx = s0.y;
+        const hy = -s0.x;
+        const s1 = this.l1.getSlope();
+        const dot = s0.x * s1.x + s0.y * s1.y;
+        const doth = hx * s1.x + hy * s1.y;
+        // angle is 0-180 when visible at night
+        this.angle = (180 / Math.PI) * Math.acos(doth);
+        if (dot < 0) {
+            // angle is 180-360 when pointed at the sun
+            this.angle = 360 - this.angle;
+        }
+    }
 }
 
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
@@ -123,9 +161,11 @@ const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
 const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
 const earth_mars = new PlanetLine(earth, mars, 0x4444dd);
+const mars_from_earth = new Angle(sun_earth, earth_mars);
 
 gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
 gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
+gui.add(mars_from_earth, "angle", -360, 360, 0.1).name("marsFromEarth").listen();
 
 function initCanvas() {
     renderer.setSize(dim, dim);
@@ -165,6 +205,7 @@ function animate() {
     mars.rotateOnAxis(MARS_DAY_DELTA);
     sun_earth.update();
     earth_mars.update();
+    mars_from_earth.update();
 
     render()
     stats.update();
