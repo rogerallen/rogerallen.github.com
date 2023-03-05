@@ -11,7 +11,7 @@ import Stats from "/assets/js/modules/r150/stats.module.js";
 
 var dim = 512;
 var scene = new THREE.Scene();
-var camera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
+var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
 var renderer = new THREE.WebGLRenderer({
     antialias: true,
     depth: true,
@@ -24,13 +24,15 @@ class Controls {
     constructor() {
         this.animate = true;
         this.speed = 4;
-        this.earthAngle = 0;
-        this.marsAngle = 0;
+        this.zoom = true;
+        //this.earthAngle = 0;
+        //this.marsAngle = 0;
     }
 }
 var controls = new Controls();
 
 gui.add(controls, "animate").name("animate");
+gui.add(controls, "zoom").name("zoom");
 gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
 
 class Planet {
@@ -47,7 +49,7 @@ class Planet {
         const texture = new THREE.TextureLoader().load(this.textureFile);
         const material = new THREE.MeshBasicMaterial({ map: texture });
         this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.rotation.x = - Math.PI / 2;
+        this.mesh.rotation.x = Math.PI / 2;  // pole towards eye
         this.mesh.position.x += this.distance;
         this.system.add(this.mesh);
 
@@ -71,8 +73,11 @@ class Planet {
     }
 
     rotateAroundSun(delta) {
-        this.angle -= delta;
-        if (this.angle < 0.0) {
+        this.angle += delta;
+        if (this.angle > 2 * Math.PI) {
+            this.angle -= 2 * Math.PI;
+        }
+        else if (this.angle < 0) {
             this.angle += 2 * Math.PI;
         }
         this.system.rotation.z = this.angle
@@ -81,7 +86,7 @@ class Planet {
     }
 
     rotateOnAxis(delta) {
-        this.mesh.rotation.y -= delta;
+        this.mesh.rotation.y += delta;
     }
 }
 
@@ -89,6 +94,7 @@ class PlanetLine {
     constructor(p0, p1, color) {
         this.p0 = p0;
         this.p1 = p1;
+        this.angle_deg = 0;
         this.system = new THREE.Group();
 
         const material = new THREE.LineBasicMaterial({ color: color });
@@ -109,11 +115,16 @@ class PlanetLine {
 
         const dx = this.p1.x - this.p0.x;
         const dy = this.p1.y - this.p0.y;
-        const x = this.p0.x + dx * 4;
-        const y = this.p0.y + dy * 4;
+        const x = this.p0.x + dx * 1000;
+        const y = this.p0.y + dy * 1000;
 
         positions[3] = x;
         positions[4] = y;
+
+        this.angle_deg = (180 / Math.PI) * Math.atan2(dy, dx);
+        if (this.angle_deg < 0) {
+            this.angle_deg = 360 + this.angle_deg;
+        }
 
     }
 
@@ -130,42 +141,15 @@ class PlanetLine {
 
 }
 
-class Angle {
-    constructor(l0, l1) {
-        this.l0 = l0;
-        this.l1 = l1;
-        this.angle = 0;
-        this.update();
-    }
-
-    update() {
-        // s0 is line that points to 'midnight'
-        const s0 = this.l0.getSlope();
-        // rotate s0 by 90 degrees to get horizon line
-        const hx = s0.y;
-        const hy = -s0.x;
-        const s1 = this.l1.getSlope();
-        const dot = s0.x * s1.x + s0.y * s1.y;
-        const doth = hx * s1.x + hy * s1.y;
-        // angle is 0-180 when visible at night
-        this.angle = (180 / Math.PI) * Math.acos(doth);
-        if (dot < 0) {
-            // angle is 180-360 when pointed at the sun
-            this.angle = 360 - this.angle;
-        }
-    }
-}
-
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
 const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
 const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
 const earth_mars = new PlanetLine(earth, mars, 0x4444dd);
-const mars_from_earth = new Angle(sun_earth, earth_mars);
 
 gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
 gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
-gui.add(mars_from_earth, "angle", -360, 360, 0.1).name("marsFromEarth").listen();
+//gui.add(earth_mars, "angle_deg", -360, 360, 0.1).name("marsFromEarth").listen();
 
 function initCanvas() {
     renderer.setSize(dim, dim);
@@ -190,10 +174,17 @@ function render() {
     renderer.render(scene, camera);
 }
 
+var g_zoom = true;
 function animate() {
     requestAnimationFrame(animate);
 
     var speed = controls.animate ? controls.speed : 0.0;
+
+    if (g_zoom != controls.zoom) {
+        camera.zoom = controls.zoom ? 1 : 1 / 20;
+        camera.updateProjectionMatrix();
+        g_zoom = controls.zoom;
+    }
 
     const EARTH_YEAR_DELTA = 2 * Math.PI * (1 / 60) * (1 / 60) * speed;
     const EARTH_DAY_DELTA = EARTH_YEAR_DELTA * 10;
@@ -205,7 +196,6 @@ function animate() {
     mars.rotateOnAxis(MARS_DAY_DELTA);
     sun_earth.update();
     earth_mars.update();
-    mars_from_earth.update();
 
     render()
     stats.update();
