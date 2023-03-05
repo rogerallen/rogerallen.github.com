@@ -6,6 +6,13 @@ and
 [https://github.com/kevinxueliang/jb-svbtle](https://github.com/kevinxueliang/jb-svbtle)
 along with some changes of my own.
 
+## Usage
+
+`> jekyll serve`
+
+`> jekyll serve --drafts`
+
+
 ## Update 2020-12-29
 
 Reset on Ubuntu 20.04.  Let's see...
