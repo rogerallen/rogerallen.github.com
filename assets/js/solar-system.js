@@ -99,8 +99,15 @@ class PlanetLine {
 
         positions[0] = this.p0.x;
         positions[1] = this.p0.y;
-        positions[3] = this.p1.x;
-        positions[4] = this.p1.y;
+
+        const dx = this.p1.x - this.p0.x;
+        const dy = this.p1.y - this.p0.y;
+        const x = this.p0.x + dx * 4;
+        const y = this.p0.y + dy * 4;
+
+        positions[3] = x;
+        positions[4] = y;
+
     }
 }
 
