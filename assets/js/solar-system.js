@@ -22,12 +22,16 @@ const gui = new GUI({ autoplace: false });
 
 class Controls {
     constructor() {
+        this.animate = true;
         this.speed = 4;
+        this.earthAngle = 0;
+        this.marsAngle = 0;
     }
 }
 var controls = new Controls();
 
-gui.add(controls, "speed", 0.1, 10.0, 0.1).name("speed");
+gui.add(controls, "animate").name("animate");
+gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
 
 class Planet {
     constructor(radius, distance, textureFile) {
@@ -68,7 +72,10 @@ class Planet {
 
     rotateAroundSun(delta) {
         this.angle -= delta;
-        this.system.rotation.z -= delta;
+        if (this.angle < 0.0) {
+            this.angle += 2 * Math.PI;
+        }
+        this.system.rotation.z = this.angle
         this.x = this.distance * Math.cos(this.angle);
         this.y = this.distance * Math.sin(this.angle);
     }
@@ -79,12 +86,12 @@ class Planet {
 }
 
 class PlanetLine {
-    constructor(p0, p1) {
+    constructor(p0, p1, color) {
         this.p0 = p0;
         this.p1 = p1;
         this.system = new THREE.Group();
 
-        const material = new THREE.LineBasicMaterial({ color: 0x4444dd });
+        const material = new THREE.LineBasicMaterial({ color: color });
         const points = [];
         points.push(new THREE.Vector3(this.p0.x, this.p0.y, 0));
         points.push(new THREE.Vector3(this.p1.x, this.p1.y, 0));
@@ -114,7 +121,11 @@ class PlanetLine {
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
 const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
-const earth_mars = new PlanetLine(earth, mars);
+const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
+const earth_mars = new PlanetLine(earth, mars, 0x4444dd);
+
+gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
+gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
 
 function initCanvas() {
     renderer.setSize(dim, dim);
@@ -129,6 +140,7 @@ function initCanvas() {
     solarSystem.add(sun.system);
     solarSystem.add(earth.system);
     solarSystem.add(mars.system);
+    solarSystem.add(sun_earth.system);
     solarSystem.add(earth_mars.system);
 
     scene.add(solarSystem);
@@ -141,7 +153,9 @@ function render() {
 function animate() {
     requestAnimationFrame(animate);
 
-    const EARTH_YEAR_DELTA = 2 * Math.PI * (1 / 60) * (1 / 60) * controls.speed;
+    var speed = controls.animate ? controls.speed : 0.0;
+
+    const EARTH_YEAR_DELTA = 2 * Math.PI * (1 / 60) * (1 / 60) * speed;
     const EARTH_DAY_DELTA = EARTH_YEAR_DELTA * 10;
     const MARS_YEAR_DELTA = (365 / 687) * EARTH_YEAR_DELTA;
     const MARS_DAY_DELTA = MARS_YEAR_DELTA * 10;
@@ -149,6 +163,7 @@ function animate() {
     earth.rotateOnAxis(EARTH_DAY_DELTA);
     mars.rotateAroundSun(MARS_YEAR_DELTA);
     mars.rotateOnAxis(MARS_DAY_DELTA);
+    sun_earth.update();
     earth_mars.update();
 
     render()
