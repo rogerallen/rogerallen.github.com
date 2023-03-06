@@ -9,7 +9,7 @@ import * as THREE from "/assets/js/modules/r150/three.module.js";
 import { GUI } from "/assets/js/modules/0.7.9/dat.gui.module.js";
 import Stats from "/assets/js/modules/r150/stats.module.js";
 
-var dim = 512;
+var dim = 548;
 var scene = new THREE.Scene();
 var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
 var renderer = new THREE.WebGLRenderer({
@@ -24,15 +24,13 @@ class Controls {
     constructor() {
         this.animate = true;
         this.speed = 4;
-        this.zoom = true;
-        //this.earthAngle = 0;
-        //this.marsAngle = 0;
+        this.zoom = 2.0;
     }
 }
 var controls = new Controls();
 
 gui.add(controls, "animate").name("animate");
-gui.add(controls, "zoom").name("zoom");
+gui.add(controls, "zoom", 1.0, 11.0, 0.01).name("zoom");
 gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
 
 class Planet {
@@ -141,11 +139,38 @@ class PlanetLine {
 
 }
 
+class Firmament {
+    constructor() {
+        this.system = new THREE.Group();
+        const N = 19;
+        for (var i = 0; i < N; i++) {
+            const distance = 7;
+            const dist_max = 5;
+            const rand_dist = dist_max * Math.random() - dist_max / 2;
+            const angle = 2 * Math.PI * (i / N);
+            const rand_angle = 10 * (2 * Math.PI / 360) * Math.random();
+            const x = (distance + rand_dist) * Math.cos(angle + rand_angle);
+            const y = (distance + rand_dist) * Math.sin(angle + rand_angle);
+            this.textureFile = "/assets/image/star.png";
+
+            const geometry = new THREE.PlaneGeometry(1, 1)
+            const texture = new THREE.TextureLoader().load(this.textureFile);
+            const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.mesh.position.x += x;
+            this.mesh.position.y += y;
+            this.system.add(this.mesh);
+        }
+    }
+}
+
+
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
 const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
 const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
-const earth_mars = new PlanetLine(earth, mars, 0x4444dd);
+const earth_mars = new PlanetLine(earth, mars, 0xdd4444);
+const firmament = new Firmament();
 
 gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
 gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
@@ -166,6 +191,7 @@ function initCanvas() {
     solarSystem.add(mars.system);
     solarSystem.add(sun_earth.system);
     solarSystem.add(earth_mars.system);
+    solarSystem.add(firmament.system);
 
     scene.add(solarSystem);
 }
@@ -174,17 +200,13 @@ function render() {
     renderer.render(scene, camera);
 }
 
-var g_zoom = true;
 function animate() {
     requestAnimationFrame(animate);
 
     var speed = controls.animate ? controls.speed : 0.0;
 
-    if (g_zoom != controls.zoom) {
-        camera.zoom = controls.zoom ? 1 : 1 / 20;
-        camera.updateProjectionMatrix();
-        g_zoom = controls.zoom;
-    }
+    camera.zoom = 1 / controls.zoom;
+    camera.updateProjectionMatrix();
 
     const EARTH_YEAR_DELTA = 2 * Math.PI * (1 / 60) * (1 / 60) * speed;
     const EARTH_DAY_DELTA = EARTH_YEAR_DELTA * 10;
