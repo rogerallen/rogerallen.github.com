@@ -9,17 +9,6 @@ import * as THREE from "/assets/js/modules/r150/three.module.js";
 import { GUI } from "/assets/js/modules/0.7.9/dat.gui.module.js";
 import Stats from "/assets/js/modules/r150/stats.module.js";
 
-var dim = 548;
-var scene = new THREE.Scene();
-var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
-var renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    depth: true,
-    depthBuffer: true,
-});
-var stats = Stats();
-const gui = new GUI({ autoplace: false });
-
 class Controls {
     constructor() {
         this.animate = true;
@@ -27,11 +16,6 @@ class Controls {
         this.zoom = 2.0;
     }
 }
-var controls = new Controls();
-
-gui.add(controls, "animate").name("animate");
-gui.add(controls, "zoom", 1.0, 11.0, 0.01).name("zoom");
-gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
 
 class Planet {
     constructor(radius, distance, textureFile) {
@@ -164,7 +148,17 @@ class Firmament {
     }
 }
 
-
+var dim = 548;
+var scene = new THREE.Scene();
+var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+var renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    depth: true,
+    depthBuffer: true,
+});
+var stats = Stats();
+const gui = new GUI();
+var controls = new Controls();
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
 const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
@@ -172,6 +166,9 @@ const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
 const earth_mars = new PlanetLine(earth, mars, 0xdd4444);
 const firmament = new Firmament();
 
+gui.add(controls, "animate").name("animate");
+gui.add(controls, "zoom", 1.0, 11.0, 0.01).name("zoom");
+gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
 gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
 gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
 //gui.add(earth_mars, "angle_deg", -360, 360, 0.1).name("marsFromEarth").listen();
