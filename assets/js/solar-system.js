@@ -156,7 +156,7 @@ var renderer = new THREE.WebGLRenderer({
     depth: true,
     depthBuffer: true,
 });
-var stats = Stats();
+//var stats = Stats();
 const gui = new GUI();
 var controls = new Controls();
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
@@ -178,7 +178,7 @@ function initCanvas() {
     renderer.setClearColor(0x222222);
     var div = document.getElementById("view");
     div.appendChild(gui.domElement)
-    div.appendChild(stats.domElement); // FIXME -- mke relative to div, not top page
+    //div.appendChild(stats.domElement); // FIXME -- mke relative to div, not top page
     div.appendChild(renderer.domElement);
 
     const solarSystem = new THREE.Group();
@@ -217,7 +217,7 @@ function animate() {
     earth_mars.update();
 
     render()
-    stats.update();
+    //stats.update();
 }
 
 initCanvas();
