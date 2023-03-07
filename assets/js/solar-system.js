@@ -13,14 +13,15 @@ class Controls {
     constructor() {
         this.animate = true;
         this.speed = 4;
-        this.zoom = 2.0;
+        this.zoom = 3.0;
     }
 }
 
 class Planet {
-    constructor(radius, distance, textureFile) {
+    constructor(radius, distance, textureFile, showDay) {
         this.radius = radius;
         this.distance = distance;
+        this.showday = showDay;
         this.angle = 0;
         this.x = this.distance * Math.cos(this.angle);
         this.y = this.distance * Math.sin(this.angle);
@@ -52,6 +53,14 @@ class Planet {
             const orbit = new THREE.Line(geometry, material);
             this.system.add(orbit);
         }
+
+        if (showDay) {
+            const geometry = new THREE.CircleGeometry(20, 32, Math.PI / 2, Math.PI);
+            const material = new THREE.MeshBasicMaterial({ color: 0xaaaadd, transparent: true, opacity: 0.25 });
+            this.dayMesh = new THREE.Mesh(geometry, material);
+            this.dayMesh.position.x += this.distance;
+            this.system.add(this.dayMesh);
+        }
     }
 
     rotateAroundSun(delta) {
@@ -69,6 +78,9 @@ class Planet {
 
     rotateOnAxis(delta) {
         this.mesh.rotation.y += delta;
+        if (this.showDay) {
+            this.dayMesh.rotation.y += delta;
+        }
     }
 }
 
@@ -128,8 +140,8 @@ class Firmament {
         this.system = new THREE.Group();
         const N = 19;
         for (var i = 0; i < N; i++) {
-            const distance = 7;
-            const dist_max = 5;
+            const distance = 6;
+            const dist_max = 6;
             const rand_dist = dist_max * Math.random() - dist_max / 2;
             const angle = 2 * Math.PI * (i / N);
             const rand_angle = 10 * (2 * Math.PI / 360) * Math.random();
@@ -159,9 +171,9 @@ var renderer = new THREE.WebGLRenderer({
 //var stats = Stats();
 const gui = new GUI();
 var controls = new Controls();
-const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg");
-const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg");
-const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg");
+const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg", false);
+const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg", true);
+const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg", false);
 const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
 const earth_mars = new PlanetLine(earth, mars, 0xdd4444);
 const firmament = new Firmament();
