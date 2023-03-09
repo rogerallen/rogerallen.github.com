@@ -1,5 +1,6 @@
 //
-// Solar system simulator
+// Retrograde explorer / Solar system simulator
+// Inspiration from https://github.com/SuboptimalEng/gamedex/tree/main/01-solar-system
 //
 // FIXME
 // [ ] stats in upperleft
@@ -9,22 +10,28 @@ import * as THREE from "/assets/js/modules/r150/three.module.js";
 import { GUI } from "/assets/js/modules/0.7.9/dat.gui.module.js";
 import Stats from "/assets/js/modules/r150/stats.module.js";
 
+function deg2rad(d) {
+    return Math.PI * d / 180.0;
+}
+
 class Controls {
     constructor() {
         this.animate = true;
+        this.show_mars = true;
+        this.show_venus = false;
         this.speed = 4;
         this.zoom = 3.0;
     }
 }
 
 class Planet {
-    constructor(radius, distance, textureFile, showDay) {
+    constructor(radius, distance, textureFile, show_day) {
         this.radius = radius;
         this.distance = distance;
-        this.showday = showDay;
-        this.angle = 0;
-        this.x = this.distance * Math.cos(this.angle);
-        this.y = this.distance * Math.sin(this.angle);
+        this.show_day = show_day;
+        this.angle_deg = 0;
+        this.x = this.distance * Math.cos(deg2rad(this.angle_deg));
+        this.y = this.distance * Math.sin(deg2rad(this.angle_deg));
         this.textureFile = textureFile;
         this.system = new THREE.Group();
 
@@ -54,33 +61,31 @@ class Planet {
             this.system.add(orbit);
         }
 
-        if (showDay) {
+        if (show_day) {
             const geometry = new THREE.CircleGeometry(20, 32, Math.PI / 2, Math.PI);
             const material = new THREE.MeshBasicMaterial({ color: 0xaaaadd, transparent: true, opacity: 0.25 });
-            this.dayMesh = new THREE.Mesh(geometry, material);
-            this.dayMesh.position.x += this.distance;
-            this.system.add(this.dayMesh);
+            const day_mesh = new THREE.Mesh(geometry, material);
+            day_mesh.position.x += this.distance;
+            this.system.add(day_mesh);
         }
     }
 
-    rotateAroundSun(delta) {
-        this.angle += delta;
-        if (this.angle > 2 * Math.PI) {
-            this.angle -= 2 * Math.PI;
+    rotateAroundSun(delta_deg) {
+        this.angle_deg += delta_deg;
+        if (this.angle_deg > 360) {
+            this.angle_deg -= 360;
         }
-        else if (this.angle < 0) {
-            this.angle += 2 * Math.PI;
+        else if (this.angle_deg < 0) {
+            this.angle_deg += 360;
         }
-        this.system.rotation.z = this.angle
-        this.x = this.distance * Math.cos(this.angle);
-        this.y = this.distance * Math.sin(this.angle);
+        // this also rotates the day_mesh
+        this.system.rotation.z = deg2rad(this.angle_deg);
+        this.x = this.distance * Math.cos(deg2rad(this.angle_deg));
+        this.y = this.distance * Math.sin(deg2rad(this.angle_deg));
     }
 
-    rotateOnAxis(delta) {
-        this.mesh.rotation.y += delta;
-        if (this.showDay) {
-            this.dayMesh.rotation.y += delta;
-        }
+    rotateOnAxis(delta_deg) {
+        this.mesh.rotation.y += deg2rad(delta_deg);
     }
 }
 
@@ -172,17 +177,22 @@ var renderer = new THREE.WebGLRenderer({
 const gui = new GUI();
 var controls = new Controls();
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg", false);
+const venus = new Planet(0.05, 0.5 * 0.7, "/assets/image/venus.jpeg", false);
 const earth = new Planet(0.05, 0.5, "/assets/image/earth.jpeg", true);
 const mars = new Planet(0.04, 0.5 * 1.524, "/assets/image/mars.jpeg", false);
 const sun_earth = new PlanetLine(sun, earth, 0xdddd44);
 const earth_mars = new PlanetLine(earth, mars, 0xdd4444);
+const earth_venus = new PlanetLine(earth, venus, 0x44dddd);
 const firmament = new Firmament();
 
-gui.add(controls, "animate").name("animate");
-gui.add(controls, "zoom", 1.0, 11.0, 0.01).name("zoom");
-gui.add(controls, "speed", -10.0, 10.0, 0.1).name("speed");
-gui.add(earth, "angle", 0.0, 2 * Math.PI, 0.01).name("earthAngle").listen();
-gui.add(mars, "angle", 0.0, 2 * Math.PI, 0.01).name("marsAngle").listen();
+gui.add(controls, "animate").name("Animate");
+gui.add(controls, "show_mars").name("Mars");
+gui.add(controls, "show_venus").name("Venus");
+gui.add(controls, "zoom", 1.0, 11.0, 0.01).name("Zoom");
+gui.add(controls, "speed", -10.0, 10.0, 0.1).name("Speed");
+gui.add(earth, "angle_deg", 0.0, 360, 1).name("Earth ∠°").listen();
+gui.add(mars, "angle_deg", 0.0, 360, 1).name("Mars ∠°").listen();
+gui.add(venus, "angle_deg", 0.0, 360, 1).name("Venus ∠°").listen();
 //gui.add(earth_mars, "angle_deg", -360, 360, 0.1).name("marsFromEarth").listen();
 
 function initCanvas() {
@@ -198,14 +208,20 @@ function initCanvas() {
     solarSystem.add(sun.system);
     solarSystem.add(earth.system);
     solarSystem.add(mars.system);
+    solarSystem.add(venus.system);
     solarSystem.add(sun_earth.system);
     solarSystem.add(earth_mars.system);
+    solarSystem.add(earth_venus.system);
     solarSystem.add(firmament.system);
 
     scene.add(solarSystem);
 }
 
 function render() {
+    mars.system.visible = controls.show_mars;
+    earth_mars.system.visible = controls.show_mars;
+    venus.system.visible = controls.show_venus;
+    earth_venus.system.visible = controls.show_venus;
     renderer.render(scene, camera);
 }
 
@@ -217,16 +233,21 @@ function animate() {
     camera.zoom = 1 / controls.zoom;
     camera.updateProjectionMatrix();
 
-    const EARTH_YEAR_DELTA = 2 * Math.PI * (1 / 60) * (1 / 60) * speed;
+    const EARTH_YEAR_DELTA = 360 * (1 / 60) * (1 / 60) * speed;
     const EARTH_DAY_DELTA = EARTH_YEAR_DELTA * 10;
     const MARS_YEAR_DELTA = (365 / 687) * EARTH_YEAR_DELTA;
     const MARS_DAY_DELTA = MARS_YEAR_DELTA * 10;
+    const VENUS_YEAR_DELTA = (365 / 224.7) * EARTH_YEAR_DELTA;
+    const VENUS_DAY_DELTA = VENUS_YEAR_DELTA * 1;
     earth.rotateAroundSun(EARTH_YEAR_DELTA);
     earth.rotateOnAxis(EARTH_DAY_DELTA);
     mars.rotateAroundSun(MARS_YEAR_DELTA);
     mars.rotateOnAxis(MARS_DAY_DELTA);
+    venus.rotateAroundSun(VENUS_YEAR_DELTA);
+    venus.rotateOnAxis(VENUS_DAY_DELTA);
     sun_earth.update();
     earth_mars.update();
+    earth_venus.update();
 
     render()
     //stats.update();
