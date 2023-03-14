@@ -1,9 +1,9 @@
 //
 // Retrograde explorer / Solar system simulator
 // Inspiration from https://github.com/SuboptimalEng/gamedex/tree/main/01-solar-system
+// This was helpful http://longqian.me/2017/02/06/jekyll-threejs/
 //
 // FIXME
-// [ ] stats in upperleft
 // [ ] orbit "above" planets
 
 import * as THREE from "/assets/js/modules/r150/three.module.js";
@@ -165,7 +165,6 @@ class Firmament {
     }
 }
 
-var dim = 548;
 var scene = new THREE.Scene();
 var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
 var renderer = new THREE.WebGLRenderer({
@@ -174,7 +173,9 @@ var renderer = new THREE.WebGLRenderer({
     depthBuffer: true,
 });
 //var stats = Stats();
-const gui = new GUI();
+
+const gui = new GUI({ autoPlace: false });
+
 var controls = new Controls();
 const sun = new Planet(0.1, 0.0, "/assets/image/sun.jpeg", false);
 const venus = new Planet(0.05, 0.5 * 0.7, "/assets/image/venus.jpeg", false);
@@ -196,12 +197,14 @@ gui.add(venus, "angle_deg", 0.0, 360, 1).name("Venus ∠°").listen();
 //gui.add(earth_mars, "angle_deg", -360, 360, 0.1).name("marsFromEarth").listen();
 
 function initCanvas() {
-    renderer.setSize(dim, dim);
+
+    document.getElementById('dat-gui-holder').appendChild(gui.domElement);
+    document.getElementById('canvas-holder').appendChild(renderer.domElement);
+    var canvasHolder = document.getElementById('canvas-holder');
+    var w = canvasHolder.clientWidth;
+    var wh = Math.min(w, window.innerHeight * 0.9);
+    renderer.setSize(wh, wh);
     renderer.setClearColor(0x222222);
-    var div = document.getElementById("view");
-    div.appendChild(gui.domElement)
-    //div.appendChild(stats.domElement); // FIXME -- mke relative to div, not top page
-    div.appendChild(renderer.domElement);
 
     const solarSystem = new THREE.Group();
 

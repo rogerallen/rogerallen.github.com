@@ -10,7 +10,12 @@ Note the yellow and red lines in the diagram below.  The yellow line is a line f
 
 The red line is from the Earth to Mars.  It shows where Mars is located in our night sky.  It typically moves clockwise across the night sky much like the yellow line, but just a little slower.  However, when the Earth approaches Mars, the red line slows down and reverses direction to move counter-clockwise in our night sky.  Only after the Earth passes will it then start moving clockwise again.  This happens each time the Mars and Earth are in conjunction (closest to each other) about once every two years.
 
-<div id="view"></div>
+<style>
+  canvas { width: inherit; position: relative; top: 0;}
+</style>
+<div id='canvas-holder' style="position: relative; width: inherit;">
+  <div id="dat-gui-holder" style="position: absolute; top: 0em; left: 0em; z-index: 1;"></div>
+</div>
 
 You can learn more about apparent retrograde motion on [Wikipedia](https://en.wikipedia.org/wiki/Apparent_retrograde_motion).  If you want a way to view where the planets are in our solar system right now, check out [solarsystem.nasa.gov](https://solarsystem.nasa.gov/).
 
