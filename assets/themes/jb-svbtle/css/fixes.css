@@ -388,3 +388,8 @@ pre code {
 .dg .closed ul li>* {
     list-style-type: none;
 }
+
+/* bugfix for Safari suggested by ChatGPT4 */
+.dg {
+    display: table;
+}
