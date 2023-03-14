@@ -377,19 +377,19 @@ pre code {
 /* for dat.gui.css 
  * - adjust list items to be next to each other
  * - allow closed controls to actually disappear
+ * - noticed that color was being overridden
+ * - chatGPT hinted that display might help on Safari
  */
 
 .dg .cr {
     margin: 0;
+    display: table-row;
+    color: #eee;
 }
 
 .dg .closed li:not(.title),
 .dg .closed ul li,
 .dg .closed ul li>* {
     list-style-type: none;
-}
-
-/* bugfix for Safari suggested by ChatGPT4 */
-.dg {
-    display: table;
+    display: none;
 }
