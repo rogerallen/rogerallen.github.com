@@ -1,6 +1,5 @@
 if (!Detector.webgl) Detector.addGetWebGLMessage({ id: "placeholder" });
 
-var dim = 512;
 var scene = new THREE.Scene();
 var camera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
 var renderer = new THREE.WebGLRenderer();
@@ -65,8 +64,10 @@ function handleMouseMove(event) {
 }
 
 function initCanvas() {
-    renderer.setSize(dim, dim);
     div = document.getElementById("placeholder");
+    w = div.clientWidth;
+    wh = Math.min(w, window.innerHeight * 0.9);
+    renderer.setSize(wh, wh);
     div.appendChild(renderer.domElement);
 
     // https://www.redblobgames.com/making-of/draggable/
