@@ -3,7 +3,6 @@ layout: post
 category : blog
 tags : [blog, jekyll]
 ---
-{% include JB/setup %}
 
 This is what I did to restart my site as a Jekyll site.  I combined
 [https://github.com/plusjade/jekyll-bootstrap](https://github.com/plusjade/jekyll-bootstrap)

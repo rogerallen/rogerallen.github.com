@@ -1,5 +1,15 @@
 ---
 layout: default
 ---
-{% include JB/setup %}
-{% include themes/jb-svbtle/page.html %}
+
+<section>
+  <article class="post">
+    <h2 class="entry-title">
+      <a href="{{ page.url | relative_url }}" class="no-link" title="Permalink to {{ page.title }}" rel="bookmark">{{ page.title }}</a>
+    </h2>
+
+    <div class="entry-content">
+      {{ content }}
+    </div>
+  </article>
+</section>

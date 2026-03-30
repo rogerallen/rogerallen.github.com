@@ -3,7 +3,6 @@ layout: page
 title: About Me
 tagline:
 ---
-{% include JB/setup %}
 
 [Updated March, 2023]
 
