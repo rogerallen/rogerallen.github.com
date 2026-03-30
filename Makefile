@@ -1,6 +1,8 @@
-# for local use
+# for local use.  e.g. make serve HOST=YOUR_IP_ADDRESS
+HOST ?= 127.0.0.1
+
 serve:
-	jekyll serve --watch
+	bundle exec jekyll serve --watch --host $(HOST)
 
 serveall:
-	jekyll serve --watch --drafts
+	bundle exec jekyll serve --watch --drafts --host $(HOST)

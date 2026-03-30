@@ -8,9 +8,81 @@ along with some changes of my own.
 
 ## Usage
 
-`> jekyll serve`
+`> jekyll serve HOST=YOUR_IP_ADDRESS`
 
-`> jekyll serve --drafts`
+`> jekyll serve --drafts HOST=YOUR_IP_ADDRESS`
+
+
+## Update 2026-03-30
+
+Gemini suggests this:
+
+I've reviewed your repository and noted that it's a Jekyll-based blog using the Jekyll-Bootstrap framework. Since you're moving to Ubuntu 24.04, here is a tailored set of suggestions for your tooling.
+
+### 1. Essential System Packages
+First, ensure you have the necessary build tools and libraries for Ruby and Jekyll. Ubuntu 24.04 includes a modern Ruby version, but you'll still need the headers and compilers for native gem extensions.
+
+```bash
+sudo apt update
+sudo apt install build-essential ruby-dev make git libyaml-dev zlib1g-dev libffi-dev
+```
+
+### 2. Ruby Version Management (Recommended)
+You mentioned in your `README.md` that transferring this project is "always so painful" due to Ruby versioning. I strongly recommend using **rbenv** to isolate your blog's Ruby environment from the system Ruby. This allows you to stick to a stable version (like 3.1 or 3.2) that works with your older Jekyll-Bootstrap setup.
+
+**Install rbenv and ruby-build:**
+```bash
+sudo apt install rbenv
+# Add to your shell config (~/.bashrc)
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+source ~/.bashrc
+
+# Install ruby-build as a plugin
+mkdir -p "$(rbenv root)"/plugins
+git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+
+# Install and set a Ruby version
+rbenv install 3.2.3
+rbenv global 3.2.3
+```
+
+### 3. Jekyll and Bundler
+Once Ruby is set up, install the core gems. I didn't see a `Gemfile` in your root, but I recommend creating one to lock your versions.
+
+```bash
+gem install jekyll bundler
+```
+
+### 4. Project Workflow & Automation
+Your project already has a `Makefile` and `Rakefile`. You can continue using these for your daily tasks:
+
+*   **Preview Site:** `make serve` (runs `jekyll serve --watch`)
+*   **Preview with Drafts:** `make serveall`
+*   **New Post:** `rake post title="My New Post"`
+*   **New Page:** `rake page name="new-page.md"`
+
+### 5. Recommended Editor & Extensions
+For a smooth development experience on Ubuntu, **Visual Studio Code** is the standard choice. I recommend these extensions:
+*   **Jekyll Snippets:** For Liquid tags and front-matter.
+*   **Ruby LSP:** For better Ruby support in your `Rakefile`.
+*   **Markdown All in One:** To help with your `.md` posts.
+
+### 6. GitHub CLI (`gh`)
+Since this is a GitHub Pages site, the GitHub CLI is very useful for managing PRs or checking CI/CD build statuses:
+```bash
+sudo apt install gh
+gh auth login
+```
+
+### 7. Optional: Creating a `Gemfile`
+To make your future migrations (e.g., to Ubuntu 26.04) easier, I suggest creating a `Gemfile` in your project root:
+```ruby
+source "https://rubygems.org"
+gem "jekyll", "~> 3.9" # Matches GitHub Pages versioning
+gem "github-pages", group: :jekyll_plugins
+gem "rake"
+```
+Then you can just run `bundle install` and `bundle exec jekyll serve`.
 
 
 ## Update 2020-12-29
