@@ -38,3 +38,5 @@ plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-paginate
+
+google_analytics: UA-36720141-1
