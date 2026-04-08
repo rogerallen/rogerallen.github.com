@@ -33,6 +33,8 @@ Below are four panels showing the transformation process:
   </div>
 </div>
 
+First we select an image to start with.  Place the center and select an appropriate radius.
+
 <div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left;">
   <div class="panel-box">
     <div id="panel-0" class="droste-panel" style="width: 50%; margin: 0;"></div>

@@ -70,39 +70,27 @@ void main() {
     vec2 z = (vUv * 2.0 - 1.0);
     vec2 zprime;
     
-    if (uMode == 1) {
-        // Mode 1: Original Image
-        zprime = vUv;  // 0 to 1
-        gl_FragColor = texture2D(tDiffuse, zprime);
+    if (uMode == 0) {
+        // Mode 0: Raw Texture with Controls
+        gl_FragColor = texture2D(tDiffuse, vUv);
         drawControls(gl_FragColor, vUv, uPoint, uRadius);
+    } else if (uMode == 1) {
+        // Mode 1: Cropped Original Image (z)
+        // Map vUv (0..1) to [uPoint - uRadius, uPoint + uRadius]
+        zprime = uPoint + z * uRadius;
+        gl_FragColor = texture2D(tDiffuse, zprime);
     } else if (uMode == 2) {
+        // Mode 2: Log-polar (ln(z))
         // go from -PI to PI and exp into Original
-        z = z*PI;  // z = -pi to pi just like video at 23:35
-        // make it periodic -1,1 and -pi,pi
+        z = z*PI;
+        // make it periodic
         z.x = mod(z.x + 1.0, 2.0) - 1.0;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
-        zprime = cexp(z);
-        zprime = (zprime + PI)*0.5*INVPI;
+        vec2 w = cexp(z);
+        // Map [-PI, PI] range of w to the crop in tDiffuse
+        zprime = uPoint + (w * INVPI) * uRadius;
         gl_FragColor = texture2D(tDiffuse, zprime);
-    }
-    //else if (uMode == 3) {
-    //    float c = cos(uRotation);
-    //    float s = sin(uRotation);
-    //    mat2 rot = mat2(c, -s, s, c);
-    //
-    //    // Mode 3: Log-polar with interactive transform (w' = A * w)
-    //    z = z*PI;
-    //    // make it periodic -1,1 and -pi,pi
-    //    z.x = mod(z.x + 1.0, 2.0) - 1.0;
-    //    z.y = mod(z.y + PI, 2.0*PI) - PI;
-    //    // apply scale & rotation to z
-    //    z = z * uScale;
-    //    z = rot * z;
-    //    vec2 w = cexp(z);
-    //
-    //    zprime = (w + PI)*0.5*INVPI;
-    //    gl_FragColor = texture2D(tDiffuse, zprime);
-    //} 
+    } 
     else if (uMode == 3) {
         // Mode 3: Log-polar with interactive transform (w' = A * w)
         z = z*PI;
@@ -118,36 +106,19 @@ void main() {
 
         // 2. Apply the formula: z = c * (z - z0) + z0
         z = cmul(c, z - z0) + z0;
-        // make it periodic -1,1 and -pi,pi (had to move this!)
+        // make it periodic
         z.x = mod(z.x + 1.0, 2.0) - 1.0;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
         vec2 w = cexp(z);
 
-        zprime = (w + PI)*0.5*INVPI;
+        // Map [-PI, PI] range of w to the crop in tDiffuse
+        zprime = uPoint + (w * INVPI) * uRadius;
         gl_FragColor = texture2D(tDiffuse, zprime);
     } 
-    //else if (uMode == 4) {
-    //    // Mode 4: Final Droste (Inverse transform z = e^w')
-    //    vec2 w = clog(z);
-    //    
-    //    // Transform the log coordinate
-    //    vec2 wprime = w * uScale;
-    //    float c = cos(uRotation);
-    //    float s = sin(uRotation);
-    //    mat2 rot = mat2(c, -s, s, c);
-    //    wprime = rot * wprime;
-    //
-    //    // Map back to complex plane using exp()
-    //    vec2 finalZ = cexp(wprime);
-    //     
-    //    // Wrap for repetition (the "Droste" infinity)
-    //    zprime = fract(finalZ * 0.5 + 0.5);
-    //    gl_FragColor = texture2D(tDiffuse, zprime);
-    //}
     else if (uMode == 4) {
         // Mode 4: Final Droste (Inverse transform z = e^w')
         z = z*PI;
-        z = clog(z);  // ??? I think ???
+        z = clog(z);
         
         // apply scale & rotation to z
         vec2 z0 = vec2(0.0, 0.5);  // fix to get this from interactive input
@@ -160,12 +131,13 @@ void main() {
 
         // 2. Apply the formula: z = c * (z - z0) + z0
         z = cmul(c, z - z0) + z0;
-        // make it periodic -1,1 and -pi,pi (had to move this!)
+        // make it periodic
         z.x = mod(z.x + 1.0, 2.0) - 1.0;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
         vec2 w = cexp(z);
         
-        zprime = (w + PI)*0.5*INVPI;
+        // Map [-PI, PI] range of w to the crop in tDiffuse
+        zprime = uPoint + (w * INVPI) * uRadius;
         gl_FragColor = texture2D(tDiffuse, zprime);
     }
 }

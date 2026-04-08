@@ -2,7 +2,7 @@ import * as THREE from './modules/r150/three.module.js';
 
 async function init() {
     const panels = [
-        { id: 'panel-0', mode: 1 }, // Raw Image
+        { id: 'panel-0', mode: 0 }, // Raw Image
         { id: 'panel-2', mode: 2 }, // Log-polar
         { id: 'panel-1', mode: 1 }, // Original
         { id: 'panel-3', mode: 3 }, // Transform
