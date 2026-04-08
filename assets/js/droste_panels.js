@@ -32,6 +32,7 @@ async function init() {
         uTime: { value: 0.0 },
         uResolution: { value: new THREE.Vector2(512, 512) },
         uPoint: { value: new THREE.Vector2(0.5, 0.5) },
+        uPoint0: { value: new THREE.Vector2(0.5 + Math.cos(0.5) * 0.2 / Math.PI, 0.5 + Math.sin(0.5) * 0.2 / Math.PI) },
         uRadius: { value: 0.2 },
         uZoom: { value: 4.0 }
     };
@@ -113,6 +114,7 @@ async function init() {
     const interactionPanels = apps.filter(app => app.id === 'panel-0' || app.id === 'panel-1');
     let activeInteractionPanel = null;
     let isMovingPoint = false;
+    let isMovingPoint0 = false;
 
     // Zoom Selector Logic
     const zoomSelect = document.getElementById('zoom-select');
@@ -135,15 +137,26 @@ async function init() {
     function updatePoint(uvX, uvY) {
         const px = Math.max(0.01, Math.min(0.99, uvX));
         const py = Math.max(0.01, Math.min(0.99, uvY));
+
+        // Move blue point relatively
+        uniforms.uPoint0.value.x += (px - uniforms.uPoint.value.x);
+        uniforms.uPoint0.value.y += (py - uniforms.uPoint.value.y);
+
         uniforms.uPoint.value.set(px, py);
         const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
         uniforms.uRadius.value = Math.min(uniforms.uRadius.value, maxRadius);
         syncUniforms();
     }
 
+    function updatePoint0(uvX, uvY) {
+        uniforms.uPoint0.value.set(uvX, uvY);
+        syncUniforms();
+    }
+
     function syncUniforms() {
         apps.forEach(app => {
             app.material.uniforms.uPoint.value.copy(uniforms.uPoint.value);
+            app.material.uniforms.uPoint0.value.copy(uniforms.uPoint0.value);
             app.material.uniforms.uRadius.value = uniforms.uRadius.value;
             app.material.uniforms.uZoom.value = uniforms.uZoom.value;
         });
@@ -158,10 +171,17 @@ async function init() {
             const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
 
             const distToPoint = Math.sqrt(Math.pow(uvX - uniforms.uPoint.value.x, 2) + Math.pow(uvY - uniforms.uPoint.value.y, 2));
-            if (distToPoint < 0.05) {
+            const distToPoint0 = Math.sqrt(Math.pow(uvX - uniforms.uPoint0.value.x, 2) + Math.pow(uvY - uniforms.uPoint0.value.y, 2));
+
+            if (distToPoint0 < 0.05) {
+                isMovingPoint = false;
+                isMovingPoint0 = true;
+            } else if (distToPoint < 0.05) {
                 isMovingPoint = true;
+                isMovingPoint0 = false;
             } else {
                 isMovingPoint = false;
+                isMovingPoint0 = false;
                 updateRadius(uvX, uvY);
             }
         });
@@ -194,6 +214,8 @@ async function init() {
 
             if (isMovingPoint) {
                 updatePoint(uvX, uvY);
+            } else if (isMovingPoint0) {
+                updatePoint0(uvX, uvY);
             } else {
                 updateRadius(uvX, uvY);
             }
@@ -203,6 +225,8 @@ async function init() {
     window.addEventListener('mouseup', () => {
         isDragging3 = false;
         activeInteractionPanel = null;
+        isMovingPoint = false;
+        isMovingPoint0 = false;
     });
 
     // Touch support for Panel 3

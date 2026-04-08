@@ -11,31 +11,37 @@ uniform float     uScale;
 uniform float     uTime;
 uniform vec2      uResolution;
 uniform vec2      uPoint;
+uniform vec2      uPoint0;
 uniform float     uRadius;
 uniform float     uZoom;
 
 varying vec2 vUv;
 
-void drawControls(inout vec4 color, vec2 uv, vec2 point, float radius, float zoom) {
+void drawControls(inout vec4 color, vec2 uv, vec2 point, vec2 point0, float radius, float zoom) {
     float res = uResolution.x;
     vec2 diff = uv - point;
     float d = length(diff) * res;
     float r = radius * res;
     float innerR = (radius / zoom) * res;
     
-    // Point (sizes in pixels)
+    // Orange Point (sizes in pixels)
     float pointSize = 4.0;
     float pointEdge = 1.0;
     float pointAlpha = smoothstep(pointSize + pointEdge, pointSize, d);
     color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), pointAlpha);
+
+    // Blue Point (z0)
+    float d0 = length(uv - point0) * res;
+    float pointAlpha0 = smoothstep(pointSize + pointEdge, pointSize, d0);
+    color = mix(color, vec4(0.0, 0.4, 1.0, 1.0), pointAlpha0);
     
-    // Outer Circle (solid)
+    // Outer Circle (solid orange)
     float thickness = 1.5;
     float circleEdge = 1.0;
     float circleAlpha = smoothstep(thickness + circleEdge, thickness, abs(d - r));
     color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), circleAlpha);
 
-    // Inner Circle (dotted)
+    // Inner Circle (dotted orange)
     float angle = atan(diff.y, diff.x);
     float dots = 30.0;
     float dotPattern = step(0.5, fract(angle * dots / TAU));
@@ -83,7 +89,7 @@ void main() {
     if (uMode == 0) {
         // Mode 0: Raw Texture with Controls
         gl_FragColor = texture2D(tDiffuse, vUv);
-        drawControls(gl_FragColor, vUv, uPoint, uRadius, uZoom);
+        drawControls(gl_FragColor, vUv, uPoint, uPoint0, uRadius, uZoom);
     } else if (uMode == 1) {
         // Mode 1: Cropped Original Image (z)
         // Map vUv (0..1) to [uPoint - uRadius, uPoint + uRadius]
@@ -107,7 +113,7 @@ void main() {
         z = z*PI;
         
         // apply scale & rotation to z
-        vec2 z0 = vec2(0.0, 0.5);  // fix to get this from interactive input
+        vec2 z0 = clog((uPoint0 - uPoint) * PI / uRadius);
 
         // 1. Define 'c' constant: 2*PI*i / (ln(uZoom) + 2*PI*i)
         vec2 num = vec2(0.0, 2.0 * PI);
@@ -132,7 +138,7 @@ void main() {
         z = clog(z);
         
         // apply scale & rotation to z
-        vec2 z0 = vec2(0.0, 0.5);  // fix to get this from interactive input
+        vec2 z0 = clog((uPoint0 - uPoint) * PI / uRadius);
 
         // 1. Define 'c' constant: 2*PI*i / (ln(uZoom) + 2*PI*i)
         vec2 num = vec2(0.0, 2.0 * PI);
