@@ -12,13 +12,16 @@ uniform float     uTime;
 uniform vec2      uResolution;
 uniform vec2      uPoint;
 uniform float     uRadius;
+uniform float     uZoom;
 
 varying vec2 vUv;
 
-void drawControls(inout vec4 color, vec2 uv, vec2 point, float radius) {
+void drawControls(inout vec4 color, vec2 uv, vec2 point, float radius, float zoom) {
     float res = uResolution.x;
-    float d = length(uv - point) * res;
+    vec2 diff = uv - point;
+    float d = length(diff) * res;
     float r = radius * res;
+    float innerR = (radius / zoom) * res;
     
     // Point (sizes in pixels)
     float pointSize = 4.0;
@@ -26,11 +29,18 @@ void drawControls(inout vec4 color, vec2 uv, vec2 point, float radius) {
     float pointAlpha = smoothstep(pointSize + pointEdge, pointSize, d);
     color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), pointAlpha);
     
-    // Circle (sizes in pixels)
+    // Outer Circle (solid)
     float thickness = 1.5;
     float circleEdge = 1.0;
     float circleAlpha = smoothstep(thickness + circleEdge, thickness, abs(d - r));
     color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), circleAlpha);
+
+    // Inner Circle (dotted)
+    float angle = atan(diff.y, diff.x);
+    float dots = 30.0;
+    float dotPattern = step(0.5, fract(angle * dots / TAU));
+    float innerCircleAlpha = smoothstep(thickness + circleEdge, thickness, abs(d - innerR)) * dotPattern;
+    color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), innerCircleAlpha);
 }
 
 // Complex Multiplication: (x,y)(x',y') = (xx'-yy', xy'+yx')
@@ -73,7 +83,7 @@ void main() {
     if (uMode == 0) {
         // Mode 0: Raw Texture with Controls
         gl_FragColor = texture2D(tDiffuse, vUv);
-        drawControls(gl_FragColor, vUv, uPoint, uRadius);
+        drawControls(gl_FragColor, vUv, uPoint, uRadius, uZoom);
     } else if (uMode == 1) {
         // Mode 1: Cropped Original Image (z)
         // Map vUv (0..1) to [uPoint - uRadius, uPoint + uRadius]
@@ -84,7 +94,8 @@ void main() {
         // go from -PI to PI and exp into Original
         z = z*PI;
         // make it periodic
-        z.x = mod(z.x + 1.0, 2.0) - 1.0;
+        float L = log(uZoom);
+        z.x = mod(z.x - log(PI), L) + log(PI) - L;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
         vec2 w = cexp(z);
         // Map [-PI, PI] range of w to the crop in tDiffuse
@@ -98,16 +109,16 @@ void main() {
         // apply scale & rotation to z
         vec2 z0 = vec2(0.0, 0.5);  // fix to get this from interactive input
 
-        // 1. Define 'c' constant: 2*PI*i / (ln(16) + 2*PI*i)
-        float scale = 9.5; // 16 in the formula above
+        // 1. Define 'c' constant: 2*PI*i / (ln(uZoom) + 2*PI*i)
         vec2 num = vec2(0.0, 2.0 * PI);
-        vec2 den = vec2(log(scale), 2.0 * PI);
+        vec2 den = vec2(log(uZoom), 2.0 * PI);
         vec2 c = cdiv(num, den);
 
         // 2. Apply the formula: z = c * (z - z0) + z0
         z = cmul(c, z - z0) + z0;
         // make it periodic
-        z.x = mod(z.x + 1.0, 2.0) - 1.0;
+        float L = log(uZoom);
+        z.x = mod(z.x - log(PI), L) + log(PI) - L;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
         vec2 w = cexp(z);
 
@@ -123,16 +134,16 @@ void main() {
         // apply scale & rotation to z
         vec2 z0 = vec2(0.0, 0.5);  // fix to get this from interactive input
 
-        // 1. Define 'c' constant: 2*PI*i / (ln(16) + 2*PI*i)
-        float scale = 9.5; // 16 in the formula above
+        // 1. Define 'c' constant: 2*PI*i / (ln(uZoom) + 2*PI*i)
         vec2 num = vec2(0.0, 2.0 * PI);
-        vec2 den = vec2(log(scale), 2.0 * PI);
+        vec2 den = vec2(log(uZoom), 2.0 * PI);
         vec2 c = cdiv(num, den);
 
         // 2. Apply the formula: z = c * (z - z0) + z0
         z = cmul(c, z - z0) + z0;
         // make it periodic
-        z.x = mod(z.x + 1.0, 2.0) - 1.0;
+        float L = log(uZoom);
+        z.x = mod(z.x - log(PI), L) + log(PI) - L;
         z.y = mod(z.y + PI, 2.0*PI) - PI;
         vec2 w = cexp(z);
         

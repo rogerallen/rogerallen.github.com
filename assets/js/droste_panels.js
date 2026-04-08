@@ -32,7 +32,8 @@ async function init() {
         uTime: { value: 0.0 },
         uResolution: { value: new THREE.Vector2(512, 512) },
         uPoint: { value: new THREE.Vector2(0.5, 0.5) },
-        uRadius: { value: 0.2 }
+        uRadius: { value: 0.2 },
+        uZoom: { value: 4.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -113,6 +114,13 @@ async function init() {
     let activeInteractionPanel = null;
     let isMovingPoint = false;
 
+    // Zoom Selector Logic
+    const zoomSelect = document.getElementById('zoom-select');
+    zoomSelect.addEventListener('change', (e) => {
+        uniforms.uZoom.value = parseFloat(e.target.value);
+        syncUniforms();
+    });
+
     function updateRadius(uvX, uvY) {
         const dx = uvX - uniforms.uPoint.value.x;
         const dy = uvY - uniforms.uPoint.value.y;
@@ -137,6 +145,7 @@ async function init() {
         apps.forEach(app => {
             app.material.uniforms.uPoint.value.copy(uniforms.uPoint.value);
             app.material.uniforms.uRadius.value = uniforms.uRadius.value;
+            app.material.uniforms.uZoom.value = uniforms.uZoom.value;
         });
     }
 

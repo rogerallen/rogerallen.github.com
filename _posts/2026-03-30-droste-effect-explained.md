@@ -35,10 +35,23 @@ Below are four panels showing the transformation process:
 
 First we select an image to start with.  Place the center and select an appropriate radius.
 
-<div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left;">
-  <div class="panel-box">
-    <div id="panel-0" class="droste-panel" style="width: 50%; margin: 0;"></div>
+<div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left; display: flex; align-items: flex-start; gap: 20px;">
+  <div class="panel-box" style="flex: 0 0 50%;">
+    <div id="panel-0" class="droste-panel" style="width: 100%; margin: 0;"></div>
     <div class="panel-label">Raw Texture Image</div>
+  </div>
+  <div style="padding-top: 25px;">
+    <label for="zoom-select"><strong>Droste Zoom:</strong></label><br>
+    <select id="zoom-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; margin-top: 5px;">
+      <option value="2">2x</option>
+      <option value="4" selected>4x</option>
+      <option value="8">8x</option>
+      <option value="16">16x</option>
+      <option value="32">32x</option>
+    </select>
+    <p style="font-size: 0.85em; color: #666; margin-top: 10px; max-width: 200px;">
+      The ratio between the outer and inner circles of the transformation.
+    </p>
   </div>
 </div>
 
