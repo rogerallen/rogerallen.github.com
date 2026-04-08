@@ -8,7 +8,7 @@ tags: [webgl, threejs, math, droste]
 
 The Droste effect, also known as mise en abyme, is a specific kind of recursive picture where a smaller version of the image appears within itself. While it looks like a simple zoom, the most fascinating versions involve a "twist" or spiral.
 
-As explained in the excellent 3Blue1Brown video, we can understand this effect through a series of mathematical transformations in the complex plane.
+As explained in the excellent [3Blue1Brown video](https://www.youtube.com/watch?v=ldxFjLJ3rVY), we can understand this effect through a series of mathematical transformations in the complex plane.
 
 ### The 4-Panel Visualization
 
@@ -18,16 +18,29 @@ Below are four panels showing the transformation process:
 3.  **The Transformed Map**: This is where the "twist" happens. We can rotate and scale the image in this log-plane. **Try dragging your mouse/finger on this panel!**
 4.  **The Final Droste**: We apply the inverse transform $z = e^{w'}$, mapping the transformed grid back to a spiral.
 
-<div id="texture-selector" style="margin-bottom: 15px; text-align: center;">
-  <label for="texture-select"><strong>Select Texture:</strong></label>
-  <select id="texture-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-    <option value="/assets/image/archery_target.png">Archery Target</option>
-    <option value="/assets/image/grid.png">Grid</option>
-    <option value="/assets/image/uhrenmacher.jpg">Uhrenmacher</option>
-  </select>
+<div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
+  <div>
+    <label for="texture-select"><strong>Select Texture:</strong></label>
+    <select id="texture-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+      <option value="/assets/image/archery_target.png">Archery Target</option>
+      <option value="/assets/image/grid.png">Grid</option>
+      <option value="/assets/image/uhrenmacher.jpg">Uhrenmacher</option>
+    </select>
+  </div>
+  <div>
+    <label for="texture-upload"><strong>Or Upload Image:</strong></label>
+    <input type="file" id="texture-upload" accept="image/*" style="padding: 5px;">
+  </div>
 </div>
 
-<div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px auto;">
+<div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left;">
+  <div class="panel-box">
+    <div id="panel-0" class="droste-panel" style="width: 50%; margin: 0;"></div>
+    <div class="panel-label">Raw Texture Image</div>
+  </div>
+</div>
+
+<div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px 0;">
   <div class="panel-box">
     <div id="panel-2" class="droste-panel"></div>
     <div class="panel-label">2. Log-polar ($\ln(z)$)</div>
@@ -54,7 +67,7 @@ Below are four panels showing the transformation process:
     border: 1px solid #ccc;
   }
   .panel-box {
-    text-align: center;
+    text-align: left;
   }
   .panel-label {
     margin-top: 5px;

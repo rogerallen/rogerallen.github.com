@@ -2,6 +2,7 @@ import * as THREE from './modules/r150/three.module.js';
 
 async function init() {
     const panels = [
+        { id: 'panel-0', mode: 1 }, // Raw Image
         { id: 'panel-2', mode: 2 }, // Log-polar
         { id: 'panel-1', mode: 1 }, // Original
         { id: 'panel-3', mode: 3 }, // Transform
@@ -63,23 +64,43 @@ async function init() {
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        return { scene, camera, renderer, material, container };
+        return { scene, camera, renderer, material, container, id: panel.id };
     });
+
+    const updateTextures = (tex) => {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        uniforms.tDiffuse.value = tex;
+        apps.forEach(app => {
+            app.material.uniforms.tDiffuse.value = tex;
+        });
+    };
 
     // Texture Selector Logic
     const textureSelect = document.getElementById('texture-select');
     textureSelect.addEventListener('change', (e) => {
         const selectedTex = textures[e.target.value];
         if (selectedTex) {
-            uniforms.tDiffuse.value = selectedTex;
-            apps.forEach(app => {
-                app.material.uniforms.tDiffuse.value = selectedTex;
+            updateTextures(selectedTex);
+        }
+    });
+
+    // Texture Upload Logic
+    const textureUpload = document.getElementById('texture-upload');
+    textureUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            textureLoader.load(url, (tex) => {
+                updateTextures(tex);
+                // Optionally clear the select menu choice
+                textureSelect.value = "";
             });
         }
     });
 
     // Interactivity on Panel 3
-    const panel3 = apps[2];
+    const panel3 = apps.find(app => app.id === 'panel-3');
     let isDragging = false;
     let lastX = 0;
     let lastY = 0;
