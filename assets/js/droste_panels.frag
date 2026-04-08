@@ -13,9 +13,7 @@ precision highp float;
 
 uniform sampler2D tDiffuse;
 uniform int       uMode;
-uniform float     uInteractiveRotation;
-uniform float     uInteractiveScale;
-uniform vec2      uResolution;
+uniform vec2      uResolution; 
 uniform vec2      uCenterUV;      // Selection Center
 uniform vec2      uFixedPointUV;  // Twist Anchor (z0)
 uniform float     uSelectionRadius;
@@ -75,14 +73,14 @@ void main() {
         // Step 2: Apply Twist
         if (uMode == MODE_TRANSFORM || uMode == MODE_DROSTE) {
             vec2 w0 = clog((uFixedPointUV - uCenterUV) * PI / uSelectionRadius);
-            vec2 c = cdiv(vec2(0.0, TAU), vec2(L, TAU));
+            
+            vec2 num = vec2(0.0, TAU);
+            vec2 den = vec2(L, TAU);
+            vec2 c = cdiv(num, den);
+            
+            c.y = -c.y; 
+            
             w = cmul(c, w - w0) + w0;
-
-            // Apply interactive offsets
-            float angle = uInteractiveRotation;
-            float scale = exp(-uInteractiveScale);
-            mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-            w = rot * (w * scale);
         }
 
         // Step 3: Periodic Tiling
