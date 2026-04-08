@@ -1,22 +1,23 @@
 ---
 layout: post
 title: "The Droste Effect Explained"
-description: "A 4-panel interactive dive into the log-polar math of the Droste effect."
+description: "A mathematical journey into the log-polar math of the Droste effect."
 category: webgl
 tags: [webgl, threejs, math, droste]
 ---
 
-The Droste effect, also known as mise en abyme, is a specific kind of recursive picture where a smaller version of the image appears within itself. While it looks like a simple zoom, the most fascinating versions involve a "twist" or spiral.
+The Droste effect, also known as *mise en abyme*, is a recursive image where a smaller version of the image appears within itself. While it often looks like a simple zoom, the most fascinating versions involve a "twist" or spiral.
 
 As explained in the excellent [3Blue1Brown video](https://www.youtube.com/watch?v=ldxFjLJ3rVY), we can understand this effect through a series of mathematical transformations in the complex plane.
 
-### The 4-Panel Visualization
+### The Mathematical Pipeline
 
-Below are four panels showing the transformation process:
-1.  **The Log-polar Map**: We apply $w = \ln(z)$, which maps circles to vertical lines and rays from the origin to horizontal lines.
-2.  **The Original Image**: Our starting point in the complex $z$-plane.
-3.  **The Transformed Map**: This is where the "twist" happens. We can rotate and scale the image in this log-plane. **Try dragging your mouse/finger on this panel!**
-4.  **The Final Droste**: We apply the inverse transform $z = e^{w'}$, mapping the transformed grid back to a spiral.
+Below are five panels showing the transformation process:
+0.  **Raw Texture**: Select your image and define the circular region. The orange point is the center, the blue point is the "fixed point" of the twist, and the dotted orange circle defines the zoom factor.
+1.  **Original Selection**: This is our starting point in the complex $z$-plane, cropped from the texture.
+2.  **Log-polar Map**: We apply $w = \ln(z)$, unrolling the circular selection into a rectangular map.
+3.  **Twisted Map**: We apply the "perfect" twist $w' = c \cdot (w - w_0) + w_0$, which aligns the image for a seamless spiral.
+4.  **Final Droste**: We apply the inverse transform $z = e^{w'}$, mapping the twisted grid back to a spiral.
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
   <div>
@@ -33,12 +34,10 @@ Below are four panels showing the transformation process:
   </div>
 </div>
 
-First we select an image to start with.  Place the center and select an appropriate radius.
-
 <div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left; display: flex; align-items: flex-start; gap: 20px;">
   <div class="panel-box" style="flex: 0 0 50%;">
     <div id="panel-0" class="droste-panel" style="width: 100%; margin: 0;"></div>
-    <div class="panel-label">Raw Texture Image</div>
+    <div class="panel-label">0. Raw Texture Image</div>
   </div>
   <div style="padding-top: 25px;">
     <label for="zoom-select"><strong>Droste Zoom:</strong></label><br>
@@ -58,15 +57,15 @@ First we select an image to start with.  Place the center and select an appropri
 <div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px 0;">
   <div class="panel-box">
     <div id="panel-2" class="droste-panel"></div>
-    <div class="panel-label">2. Log-polar ($\ln(z)$)</div>
+    <div class="panel-label">2. Log-polar Map ($\ln(z)$)</div>
   </div>
   <div class="panel-box">
     <div id="panel-1" class="droste-panel"></div>
     <div class="panel-label">1. Original Image ($z$)</div>
   </div>
   <div class="panel-box">
-    <div id="panel-3" class="droste-panel" style="cursor: move; border: 2px solid #007bff;"></div>
-    <div class="panel-label">3. Interactive Transform ($w' = A \cdot w$)</div>
+    <div id="panel-3" class="droste-panel"></div>
+    <div class="panel-label">3. Twisted Map ($w' = c \cdot w$)</div>
   </div>
   <div class="panel-box">
     <div id="panel-4" class="droste-panel"></div>

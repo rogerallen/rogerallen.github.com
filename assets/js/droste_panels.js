@@ -2,11 +2,11 @@ import * as THREE from './modules/r150/three.module.js';
 
 async function init() {
     const panels = [
-        { id: 'panel-0', mode: 0 }, // Raw Image
-        { id: 'panel-2', mode: 2 }, // Log-polar
-        { id: 'panel-1', mode: 1 }, // Original
-        { id: 'panel-3', mode: 3 }, // Transform
-        { id: 'panel-4', mode: 4 }  // Final
+        { id: 'panel-0', mode: 0 }, // MODE_RAW
+        { id: 'panel-1', mode: 1 }, // MODE_ORIGINAL
+        { id: 'panel-2', mode: 2 }, // MODE_LOG_POLAR
+        { id: 'panel-3', mode: 3 }, // MODE_TRANSFORM
+        { id: 'panel-4', mode: 4 }  // MODE_DROSTE
     ];
 
     const textureLoader = new THREE.TextureLoader();
@@ -16,7 +16,7 @@ async function init() {
         '/assets/image/uhrenmacher.jpg': await textureLoader.loadAsync('/assets/image/uhrenmacher.jpg')
     };
 
-    // Configure textures
+    // Configure textures for tiling
     Object.values(textures).forEach(tex => {
         tex.wrapS = THREE.RepeatWrapping;
         tex.wrapT = THREE.RepeatWrapping;
@@ -24,17 +24,13 @@ async function init() {
 
     const fragShader = await fetch('/assets/js/droste_panels.frag').then(r => r.text());
     
+    // Global State (Uniforms)
     const uniforms = {
-        tDiffuse: { value: textures['/assets/image/archery_target.png'] },
-        uMode: { value: 1 },
-        uRotation: { value: 0.0 },
-        uScale: { value: 1.0 },
-        uTime: { value: 0.0 },
-        uResolution: { value: new THREE.Vector2(512, 512) },
-        uPoint: { value: new THREE.Vector2(0.5, 0.5) },
-        uPoint0: { value: new THREE.Vector2(0.5 + Math.cos(0.5) * 0.2 / Math.PI, 0.5 + Math.sin(0.5) * 0.2 / Math.PI) },
-        uRadius: { value: 0.2 },
-        uZoom: { value: 4.0 }
+        tDiffuse:             { value: textures['/assets/image/archery_target.png'] },
+        uCenterUV:            { value: new THREE.Vector2(0.5, 0.5) },
+        uFixedPointUV:        { value: new THREE.Vector2(0.55, 0.5) },
+        uSelectionRadius:     { value: 0.2 },
+        uZoomFactor:          { value: 4.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -72,203 +68,131 @@ async function init() {
         return { scene, camera, renderer, material, container, id: panel.id };
     });
 
+    // Helper: Sync all panel uniforms
+    function syncUniforms() {
+        apps.forEach(app => {
+            Object.keys(uniforms).forEach(key => {
+                if (app.material.uniforms[key]) {
+                    if (uniforms[key].value.clone) {
+                        app.material.uniforms[key].value.copy(uniforms[key].value);
+                    } else {
+                        app.material.uniforms[key].value = uniforms[key].value;
+                    }
+                }
+            });
+        });
+    }
+
     const updateTextures = (tex) => {
         tex.wrapS = THREE.RepeatWrapping;
         tex.wrapT = THREE.RepeatWrapping;
         uniforms.tDiffuse.value = tex;
-        apps.forEach(app => {
-            app.material.uniforms.tDiffuse.value = tex;
-        });
+        syncUniforms();
     };
 
-    // Texture Selector Logic
-    const textureSelect = document.getElementById('texture-select');
-    textureSelect.addEventListener('change', (e) => {
+    // --- Interaction Logic ---
+
+    // 1. Texture Selection
+    document.getElementById('texture-select').addEventListener('change', (e) => {
         const selectedTex = textures[e.target.value];
-        if (selectedTex) {
-            updateTextures(selectedTex);
-        }
+        if (selectedTex) updateTextures(selectedTex);
     });
 
-    // Texture Upload Logic
-    const textureUpload = document.getElementById('texture-upload');
-    textureUpload.addEventListener('change', (e) => {
+    document.getElementById('texture-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const url = URL.createObjectURL(file);
-            textureLoader.load(url, (tex) => {
-                updateTextures(tex);
-                // Optionally clear the select menu choice
-                textureSelect.value = "";
-            });
+            textureLoader.load(url, updateTextures);
+            document.getElementById('texture-select').value = "";
         }
     });
 
-    // Interactivity on Panel 3
-    const panel3 = apps.find(app => app.id === 'panel-3');
-    let isDragging3 = false;
-    let lastX3 = 0;
-    let lastY3 = 0;
-
-    // Interaction on Panel 0 and 1 (Original Images)
-    const interactionPanels = apps.filter(app => app.id === 'panel-0' || app.id === 'panel-1');
-    let activeInteractionPanel = null;
-    let isMovingPoint = false;
-    let isMovingPoint0 = false;
-
-    // Zoom Selector Logic
-    const zoomSelect = document.getElementById('zoom-select');
-    zoomSelect.addEventListener('change', (e) => {
-        uniforms.uZoom.value = parseFloat(e.target.value);
+    // 2. Zoom Selection
+    document.getElementById('zoom-select').addEventListener('change', (e) => {
+        uniforms.uZoomFactor.value = parseFloat(e.target.value);
         syncUniforms();
     });
 
-    function updateRadius(uvX, uvY) {
-        const dx = uvX - uniforms.uPoint.value.x;
-        const dy = uvY - uniforms.uPoint.value.y;
-        let radius = Math.sqrt(dx * dx + dy * dy);
-        const px = uniforms.uPoint.value.x;
-        const py = uniforms.uPoint.value.y;
-        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
-        uniforms.uRadius.value = Math.min(radius, maxRadius);
-        syncUniforms();
-    }
+    // 3. Selection & Twist Center Interaction (Panel 0)
+    let activeSourcePanel = null;
+    let dragMode = null; // 'center', 'fixed', or 'radius'
 
-    function updatePoint(uvX, uvY) {
-        const px = Math.max(0.01, Math.min(0.99, uvX));
-        const py = Math.max(0.01, Math.min(0.99, uvY));
-
-        // Move blue point relatively
-        uniforms.uPoint0.value.x += (px - uniforms.uPoint.value.x);
-        uniforms.uPoint0.value.y += (py - uniforms.uPoint.value.y);
-
-        uniforms.uPoint.value.set(px, py);
-        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
-        uniforms.uRadius.value = Math.min(uniforms.uRadius.value, maxRadius);
-        syncUniforms();
-    }
-
-    function updatePoint0(uvX, uvY) {
-        uniforms.uPoint0.value.set(uvX, uvY);
-        syncUniforms();
-    }
-
-    function syncUniforms() {
-        apps.forEach(app => {
-            app.material.uniforms.uPoint.value.copy(uniforms.uPoint.value);
-            app.material.uniforms.uPoint0.value.copy(uniforms.uPoint0.value);
-            app.material.uniforms.uRadius.value = uniforms.uRadius.value;
-            app.material.uniforms.uZoom.value = uniforms.uZoom.value;
-        });
-    }
-
-    interactionPanels.forEach(app => {
+    const sourcePanels = apps.filter(app => app.id === 'panel-0');
+    sourcePanels.forEach(app => {
         app.container.style.cursor = 'crosshair';
         app.container.addEventListener('mousedown', (e) => {
-            activeInteractionPanel = app;
+            activeSourcePanel = app;
             const rect = app.container.getBoundingClientRect();
             const uvX = (e.clientX - rect.left) / rect.width;
             const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
 
-            const distToPoint = Math.sqrt(Math.pow(uvX - uniforms.uPoint.value.x, 2) + Math.pow(uvY - uniforms.uPoint.value.y, 2));
-            const distToPoint0 = Math.sqrt(Math.pow(uvX - uniforms.uPoint0.value.x, 2) + Math.pow(uvY - uniforms.uPoint0.value.y, 2));
+            const distToCenter = uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
+            const distToFixed  = uniforms.uFixedPointUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
 
-            if (distToPoint0 < 0.05) {
-                isMovingPoint = false;
-                isMovingPoint0 = true;
-            } else if (distToPoint < 0.05) {
-                isMovingPoint = true;
-                isMovingPoint0 = false;
+            if (distToFixed < 0.05) {
+                dragMode = 'fixed';
+            } else if (distToCenter < 0.05) {
+                dragMode = 'center';
             } else {
-                isMovingPoint = false;
-                isMovingPoint0 = false;
+                dragMode = 'radius';
                 updateRadius(uvX, uvY);
             }
         });
     });
 
-    panel3.container.addEventListener('mousedown', (e) => {
-        isDragging3 = true;
-        lastX3 = e.clientX;
-        lastY3 = e.clientY;
-    });
+    function updateRadius(uvX, uvY) {
+        const radius = uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
+        const px = uniforms.uCenterUV.value.x;
+        const py = uniforms.uCenterUV.value.y;
+        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
+        uniforms.uSelectionRadius.value = Math.min(radius, maxRadius);
+        syncUniforms();
+    }
 
+    function updateCenter(uvX, uvY) {
+        const px = Math.max(0.01, Math.min(0.99, uvX));
+        const py = Math.max(0.01, Math.min(0.99, uvY));
+        
+        // Move fixed point relatively
+        uniforms.uFixedPointUV.value.x += (px - uniforms.uCenterUV.value.x);
+        uniforms.uFixedPointUV.value.y += (py - uniforms.uCenterUV.value.y);
+        uniforms.uCenterUV.value.set(px, py);
+
+        // Constrain radius
+        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
+        uniforms.uSelectionRadius.value = Math.min(uniforms.uSelectionRadius.value, maxRadius);
+        syncUniforms();
+    }
+
+    // Global Mouse Handlers
     window.addEventListener('mousemove', (e) => {
-        if (isDragging3) {
-            const deltaX = e.clientX - lastX3;
-            const deltaY = e.clientY - lastY3;
-            lastX3 = e.clientX;
-            lastY3 = e.clientY;
-
-            uniforms.uRotation.value += deltaX * 0.01;
-            uniforms.uScale.value *= Math.exp(deltaY * -0.01);
-
-            apps.forEach(app => {
-                app.material.uniforms.uRotation.value = uniforms.uRotation.value;
-                app.material.uniforms.uScale.value = uniforms.uScale.value;
-            });
-        } else if (activeInteractionPanel) {
-            const rect = activeInteractionPanel.container.getBoundingClientRect();
+        if (activeSourcePanel) {
+            const rect = activeSourcePanel.container.getBoundingClientRect();
             const uvX = (e.clientX - rect.left) / rect.width;
             const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
 
-            if (isMovingPoint) {
-                updatePoint(uvX, uvY);
-            } else if (isMovingPoint0) {
-                updatePoint0(uvX, uvY);
-            } else {
-                updateRadius(uvX, uvY);
+            if (dragMode === 'center') updateCenter(uvX, uvY);
+            else if (dragMode === 'fixed') {
+                uniforms.uFixedPointUV.value.set(uvX, uvY);
+                syncUniforms();
             }
+            else if (dragMode === 'radius') updateRadius(uvX, uvY);
         }
     });
 
     window.addEventListener('mouseup', () => {
-        isDragging3 = false;
-        activeInteractionPanel = null;
-        isMovingPoint = false;
-        isMovingPoint0 = false;
+        activeSourcePanel = null;
+        dragMode = null;
     });
 
-    // Touch support for Panel 3
-    panel3.container.addEventListener('touchstart', (e) => {
-        isDragging3 = true;
-        lastX3 = e.touches[0].clientX;
-        lastY3 = e.touches[0].clientY;
-        e.preventDefault();
-    }, { passive: false });
-
-    window.addEventListener('touchmove', (e) => {
-        if (!isDragging3) return;
-        const deltaX = e.touches[0].clientX - lastX3;
-        const deltaY = e.touches[0].clientY - lastY3;
-        lastX3 = e.touches[0].clientX;
-        lastY3 = e.touches[0].clientY;
-
-        uniforms.uRotation.value += deltaX * 0.01;
-        uniforms.uScale.value *= Math.exp(deltaY * -0.01);
-
-        apps.forEach(app => {
-            app.material.uniforms.uRotation.value = uniforms.uRotation.value;
-            app.material.uniforms.uScale.value = uniforms.uScale.value;
-        });
-        e.preventDefault();
-    }, { passive: false });
-
-    window.addEventListener('touchend', () => {
-        isDragging3 = false;
-    });
-
-    function animate(time) {
+    // --- Render Loop ---
+    function animate() {
         requestAnimationFrame(animate);
-        const t = time * 0.001;
-        uniforms.uTime.value = t;
-
         apps.forEach(app => {
             app.renderer.render(app.scene, app.camera);
         });
     }
-
-    animate(0);
+    animate();
 }
 
 init();
