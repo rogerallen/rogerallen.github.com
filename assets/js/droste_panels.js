@@ -11,7 +11,8 @@ async function init() {
     const textureLoader = new THREE.TextureLoader();
     const textures = {
         '/assets/image/archery_target.png': await textureLoader.loadAsync('/assets/image/archery_target.png'),
-        '/assets/image/grid.png': await textureLoader.loadAsync('/assets/image/grid.png')
+        '/assets/image/grid.png': await textureLoader.loadAsync('/assets/image/grid.png'),
+        '/assets/image/uhrenmacher.jpg': await textureLoader.loadAsync('/assets/image/uhrenmacher.jpg')
     };
 
     // Configure textures

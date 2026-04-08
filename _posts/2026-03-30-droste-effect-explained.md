@@ -12,19 +12,20 @@ As explained in the excellent 3Blue1Brown video, we can understand this effect t
 
 ### The 4-Panel Visualization
 
-<div id="texture-selector" style="margin-bottom: 15px; text-align: center;">
-  <label for="texture-select"><strong>Select Texture:</strong></label>
-  <select id="texture-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-    <option value="/assets/image/archery_target.png">Archery Target</option>
-    <option value="/assets/image/grid.png">Grid</option>
-  </select>
-</div>
-
 Below are four panels showing the transformation process:
 1.  **The Log-polar Map**: We apply $w = \ln(z)$, which maps circles to vertical lines and rays from the origin to horizontal lines.
 2.  **The Original Image**: Our starting point in the complex $z$-plane.
 3.  **The Transformed Map**: This is where the "twist" happens. We can rotate and scale the image in this log-plane. **Try dragging your mouse/finger on this panel!**
 4.  **The Final Droste**: We apply the inverse transform $z = e^{w'}$, mapping the transformed grid back to a spiral.
+
+<div id="texture-selector" style="margin-bottom: 15px; text-align: center;">
+  <label for="texture-select"><strong>Select Texture:</strong></label>
+  <select id="texture-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+    <option value="/assets/image/archery_target.png">Archery Target</option>
+    <option value="/assets/image/grid.png">Grid</option>
+    <option value="/assets/image/uhrenmacher.jpg">Uhrenmacher</option>
+  </select>
+</div>
 
 <div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px auto;">
   <div class="panel-box">
