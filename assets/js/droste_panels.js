@@ -30,7 +30,9 @@ async function init() {
         uCenterUV:            { value: new THREE.Vector2(0.5, 0.5) },
         uFixedPointUV:        { value: new THREE.Vector2(0.55, 0.5) },
         uSelectionRadius:     { value: 0.2 },
-        uZoomFactor:          { value: 4.0 }
+        uZoomFactor:          { value: 4.0 },
+        uTweakReal:           { value: 0.0 },
+        uTweakImag:           { value: 0.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -110,6 +112,25 @@ async function init() {
     // 2. Zoom Selection
     document.getElementById('zoom-select').addEventListener('change', (e) => {
         uniforms.uZoomFactor.value = parseFloat(e.target.value);
+        syncUniforms();
+    });
+
+    // 2.5 Twist Tweaks
+    const tweakRealSlider = document.getElementById('tweak-real-slider');
+    const tweakRealValue = document.getElementById('tweak-real-value');
+    tweakRealSlider.addEventListener('input', (e) => {
+        const value = parseFloat(e.target.value);
+        uniforms.uTweakReal.value = value;
+        tweakRealValue.innerText = value.toFixed(3);
+        syncUniforms();
+    });
+
+    const tweakImagSlider = document.getElementById('tweak-imag-slider');
+    const tweakImagValue = document.getElementById('tweak-imag-value');
+    tweakImagSlider.addEventListener('input', (e) => {
+        const value = parseFloat(e.target.value);
+        uniforms.uTweakImag.value = value;
+        tweakImagValue.innerText = value.toFixed(3);
         syncUniforms();
     });
 

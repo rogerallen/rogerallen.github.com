@@ -73,6 +73,17 @@ Below are five panels showing the transformation process:
   </div>
 </div>
 
+<div id="tweak-container" style="width: 100%; max-width: 800px; margin: 20px 0; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+  <div>
+    <label for="tweak-real-slider"><strong>Tweak Twist (Real):</strong> <span id="tweak-real-value">0.000</span></label><br>
+    <input type="range" id="tweak-real-slider" min="-0.5" max="0.5" step="0.001" value="0.0" style="width: 100%; margin-top: 10px;">
+  </div>
+  <div>
+    <label for="tweak-imag-slider"><strong>Tweak Twist (Imaginary):</strong> <span id="tweak-imag-value">0.000</span></label><br>
+    <input type="range" id="tweak-imag-slider" min="-0.5" max="0.5" step="0.001" value="0.0" style="width: 100%; margin-top: 10px;">
+  </div>
+</div>
+
 <style>
   .droste-panel {
     width: 100%;

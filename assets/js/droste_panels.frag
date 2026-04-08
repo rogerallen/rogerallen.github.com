@@ -18,6 +18,8 @@ uniform vec2      uCenterUV;      // Selection Center
 uniform vec2      uFixedPointUV;  // Twist Anchor (z0)
 uniform float     uSelectionRadius;
 uniform float     uZoomFactor;
+uniform float     uTweakReal;
+uniform float     uTweakImag;
 
 varying vec2 vUv;
 
@@ -78,7 +80,12 @@ void main() {
             vec2 den = vec2(L, TAU);
             vec2 c = cdiv(num, den);
             
+            // Apply Slant Flip (to match 3B1B)
             c.y = -c.y; 
+            
+            // Manual Tweaks
+            c.x += uTweakReal;
+            c.y += uTweakImag;
             
             w = cmul(c, w - w0) + w0;
         }
