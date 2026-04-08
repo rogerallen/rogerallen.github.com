@@ -30,7 +30,9 @@ async function init() {
         uRotation: { value: 0.0 },
         uScale: { value: 1.0 },
         uTime: { value: 0.0 },
-        uResolution: { value: new THREE.Vector2(512, 512) }
+        uResolution: { value: new THREE.Vector2(512, 512) },
+        uPoint: { value: new THREE.Vector2(0.5, 0.5) },
+        uRadius: { value: 0.2 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -49,7 +51,8 @@ async function init() {
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 ...uniforms,
-                uMode: { value: panel.mode }
+                uMode: { value: panel.mode },
+                uResolution: { value: new THREE.Vector2(width, height) }
             },
             vertexShader: `
                 varying vec2 vUv;
@@ -101,51 +104,112 @@ async function init() {
 
     // Interactivity on Panel 3
     const panel3 = apps.find(app => app.id === 'panel-3');
-    let isDragging = false;
-    let lastX = 0;
-    let lastY = 0;
+    let isDragging3 = false;
+    let lastX3 = 0;
+    let lastY3 = 0;
 
-    panel3.container.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-    });
+    // Interaction on Panel 0 and 1 (Original Images)
+    const interactionPanels = apps.filter(app => app.id === 'panel-0' || app.id === 'panel-1');
+    let activeInteractionPanel = null;
+    let isMovingPoint = false;
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
+    function updateRadius(uvX, uvY) {
+        const dx = uvX - uniforms.uPoint.value.x;
+        const dy = uvY - uniforms.uPoint.value.y;
+        let radius = Math.sqrt(dx * dx + dy * dy);
+        const px = uniforms.uPoint.value.x;
+        const py = uniforms.uPoint.value.y;
+        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
+        uniforms.uRadius.value = Math.min(radius, maxRadius);
+        syncUniforms();
+    }
 
-        const deltaX = e.clientX - lastX;
-        const deltaY = e.clientY - lastY;
-        lastX = e.clientX;
-        lastY = e.clientY;
+    function updatePoint(uvX, uvY) {
+        const px = Math.max(0.01, Math.min(0.99, uvX));
+        const py = Math.max(0.01, Math.min(0.99, uvY));
+        uniforms.uPoint.value.set(px, py);
+        const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
+        uniforms.uRadius.value = Math.min(uniforms.uRadius.value, maxRadius);
+        syncUniforms();
+    }
 
-        uniforms.uRotation.value += deltaX * 0.01;
-        uniforms.uScale.value *= Math.exp(deltaY * -0.01);
-
+    function syncUniforms() {
         apps.forEach(app => {
-            app.material.uniforms.uRotation.value = uniforms.uRotation.value;
-            app.material.uniforms.uScale.value = uniforms.uScale.value;
+            app.material.uniforms.uPoint.value.copy(uniforms.uPoint.value);
+            app.material.uniforms.uRadius.value = uniforms.uRadius.value;
+        });
+    }
+
+    interactionPanels.forEach(app => {
+        app.container.style.cursor = 'crosshair';
+        app.container.addEventListener('mousedown', (e) => {
+            activeInteractionPanel = app;
+            const rect = app.container.getBoundingClientRect();
+            const uvX = (e.clientX - rect.left) / rect.width;
+            const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+
+            const distToPoint = Math.sqrt(Math.pow(uvX - uniforms.uPoint.value.x, 2) + Math.pow(uvY - uniforms.uPoint.value.y, 2));
+            if (distToPoint < 0.05) {
+                isMovingPoint = true;
+            } else {
+                isMovingPoint = false;
+                updateRadius(uvX, uvY);
+            }
         });
     });
 
-    window.addEventListener('mouseup', () => {
-        isDragging = false;
+    panel3.container.addEventListener('mousedown', (e) => {
+        isDragging3 = true;
+        lastX3 = e.clientX;
+        lastY3 = e.clientY;
     });
 
-    // Touch support
+    window.addEventListener('mousemove', (e) => {
+        if (isDragging3) {
+            const deltaX = e.clientX - lastX3;
+            const deltaY = e.clientY - lastY3;
+            lastX3 = e.clientX;
+            lastY3 = e.clientY;
+
+            uniforms.uRotation.value += deltaX * 0.01;
+            uniforms.uScale.value *= Math.exp(deltaY * -0.01);
+
+            apps.forEach(app => {
+                app.material.uniforms.uRotation.value = uniforms.uRotation.value;
+                app.material.uniforms.uScale.value = uniforms.uScale.value;
+            });
+        } else if (activeInteractionPanel) {
+            const rect = activeInteractionPanel.container.getBoundingClientRect();
+            const uvX = (e.clientX - rect.left) / rect.width;
+            const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+
+            if (isMovingPoint) {
+                updatePoint(uvX, uvY);
+            } else {
+                updateRadius(uvX, uvY);
+            }
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging3 = false;
+        activeInteractionPanel = null;
+    });
+
+    // Touch support for Panel 3
     panel3.container.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        lastX = e.touches[0].clientX;
-        lastY = e.touches[0].clientY;
+        isDragging3 = true;
+        lastX3 = e.touches[0].clientX;
+        lastY3 = e.touches[0].clientY;
         e.preventDefault();
     }, { passive: false });
 
     window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const deltaX = e.touches[0].clientX - lastX;
-        const deltaY = e.touches[0].clientY - lastY;
-        lastX = e.touches[0].clientX;
-        lastY = e.touches[0].clientY;
+        if (!isDragging3) return;
+        const deltaX = e.touches[0].clientX - lastX3;
+        const deltaY = e.touches[0].clientY - lastY3;
+        lastX3 = e.touches[0].clientX;
+        lastY3 = e.touches[0].clientY;
 
         uniforms.uRotation.value += deltaX * 0.01;
         uniforms.uScale.value *= Math.exp(deltaY * -0.01);
@@ -158,7 +222,7 @@ async function init() {
     }, { passive: false });
 
     window.addEventListener('touchend', () => {
-        isDragging = false;
+        isDragging3 = false;
     });
 
     function animate(time) {

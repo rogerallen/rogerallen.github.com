@@ -10,8 +10,28 @@ uniform float     uRotation;
 uniform float     uScale;
 uniform float     uTime;
 uniform vec2      uResolution;
+uniform vec2      uPoint;
+uniform float     uRadius;
 
 varying vec2 vUv;
+
+void drawControls(inout vec4 color, vec2 uv, vec2 point, float radius) {
+    float res = uResolution.x;
+    float d = length(uv - point) * res;
+    float r = radius * res;
+    
+    // Point (sizes in pixels)
+    float pointSize = 4.0;
+    float pointEdge = 1.0;
+    float pointAlpha = smoothstep(pointSize + pointEdge, pointSize, d);
+    color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), pointAlpha);
+    
+    // Circle (sizes in pixels)
+    float thickness = 1.5;
+    float circleEdge = 1.0;
+    float circleAlpha = smoothstep(thickness + circleEdge, thickness, abs(d - r));
+    color = mix(color, vec4(1.0, 0.6, 0.0, 1.0), circleAlpha);
+}
 
 // Complex Multiplication: (x,y)(x',y') = (xx'-yy', xy'+yx')
 vec2 cmul(vec2 a, vec2 b) {
@@ -54,6 +74,7 @@ void main() {
         // Mode 1: Original Image
         zprime = vUv;  // 0 to 1
         gl_FragColor = texture2D(tDiffuse, zprime);
+        drawControls(gl_FragColor, vUv, uPoint, uRadius);
     } else if (uMode == 2) {
         // go from -PI to PI and exp into Original
         z = z*PI;  // z = -pi to pi just like video at 23:35
