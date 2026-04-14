@@ -11,7 +11,7 @@ For almost 11 years, I've been running a bot that evolves imagery based on favor
 
 A few months ago, X [announced the Launch of X API Pay-Per-Use Pricing](https://devcommunity.x.com/t/announcing-the-launch-of-x-api-pay-per-use-pricing/256476). I wasn't paying attention, and this escaped my notice.  At the end of March, I noticed that images stopped posting to [x.com/tweegeemee](https://x.com/tweegeemee).  Investigating my logs showed `HTTPException: 402 Payment Required. Your enrolled account [redacted] does not have any credits to fulfill this request.`  I have no intention of paying to post, so [this is the final image on X](https://x.com/tweegeemee/status/2035323410923016699).   
 
-Tweegeemee started out on Twitter before it became X, so this is good bye after almost 11 years.  I really lament the loss of Twitter as a friendly place to hang out with other like-minded programmers.  I've not found another spot like it and that makes me a bit melancholy.  People have scattered to thier favorite corners and the single gathering spot like Twitter will not be seen again.
+Tweegeemee started out on Twitter before it became X, so this is good bye after almost 11 years.  I really lament the loss of Twitter as a friendly place to hang out with other like-minded programmers.  I've not found another spot like it and that makes me a bit melancholy.  People have scattered to their favorite corners and the single gathering spot like Twitter will not be seen again.
 
 # Hello, other networks
 
