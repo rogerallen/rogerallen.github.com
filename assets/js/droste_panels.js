@@ -29,7 +29,7 @@ async function init() {
     const uniforms = {
         tDiffuse:             { value: textures[initialTexture] },
         uCenterUV:            { value: new THREE.Vector2(0.5, 0.5) },
-        uFixedPointUV:        { value: new THREE.Vector2(0.55, 0.5) },
+        uFixedPointUV:        { value: new THREE.Vector2(0.42, 0.26) },
         uSelectionRadius:     { value: 0.2 },
         uZoomFactor:          { value: 4.0 },
         uTweakReal:           { value: 0.0 },
@@ -135,7 +135,7 @@ async function init() {
         syncUniforms();
     });
 
-    // 3. Selection & Twist Center Interaction (Panel 0)
+    // 3. Selection Interaction (Panel 0) & Twist Fixed Point Interaction (Panel 1)
     let activeSourcePanel = null;
     let dragMode = null; // 'center', 'fixed', or 'radius'
 
@@ -149,11 +149,8 @@ async function init() {
             const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
 
             const distToCenter = uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
-            const distToFixed  = uniforms.uFixedPointUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
 
-            if (distToFixed < 0.05) {
-                dragMode = 'fixed';
-            } else if (distToCenter < 0.05) {
+            if (distToCenter < 0.05) {
                 dragMode = 'center';
             } else {
                 dragMode = 'radius';
@@ -161,6 +158,29 @@ async function init() {
             }
         });
     });
+
+    const originalPanels = apps.filter(app => app.id === 'panel-1');
+    originalPanels.forEach(app => {
+        app.container.style.cursor = 'crosshair';
+        app.container.addEventListener('mousedown', (e) => {
+            activeSourcePanel = app;
+            dragMode = 'fixed';
+            const rect = app.container.getBoundingClientRect();
+            const uvX = (e.clientX - rect.left) / rect.width;
+            const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+            updateFixedPoint(uvX, uvY);
+        });
+    });
+
+    function updateFixedPoint(uvX, uvY) {
+        let px = Math.max(0.01, Math.min(0.99, uvX));
+        let py = Math.max(0.01, Math.min(0.99, uvY));
+        if (Math.hypot(px - 0.5, py - 0.5) < 0.005) {
+            px = 0.505;
+        }
+        uniforms.uFixedPointUV.value.set(px, py);
+        syncUniforms();
+    }
 
     function updateRadius(uvX, uvY) {
         const radius = uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY));
@@ -174,10 +194,6 @@ async function init() {
     function updateCenter(uvX, uvY) {
         const px = Math.max(0.01, Math.min(0.99, uvX));
         const py = Math.max(0.01, Math.min(0.99, uvY));
-        
-        // Move fixed point relatively
-        uniforms.uFixedPointUV.value.x += (px - uniforms.uCenterUV.value.x);
-        uniforms.uFixedPointUV.value.y += (py - uniforms.uCenterUV.value.y);
         uniforms.uCenterUV.value.set(px, py);
 
         // Constrain radius
@@ -194,10 +210,7 @@ async function init() {
             const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
 
             if (dragMode === 'center') updateCenter(uvX, uvY);
-            else if (dragMode === 'fixed') {
-                uniforms.uFixedPointUV.value.set(uvX, uvY);
-                syncUniforms();
-            }
+            else if (dragMode === 'fixed') updateFixedPoint(uvX, uvY);
             else if (dragMode === 'radius') updateRadius(uvX, uvY);
         }
     });
