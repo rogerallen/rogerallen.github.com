@@ -22,7 +22,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
 1.  **Original Selection**: This is our starting point in the complex $z$-plane, cropped from the input image via the <span style="color: orange;">orange circular region</span>. You can click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
 1.  **Log-polar Map**: We apply $w = \ln(z)$, unrolling the circular selection into a rectangular map. This unrolls the annulus between the <span style="color: orange;">inner dotted orange circle</span> and the <span style="color: orange;">outer solid orange circle</span>. The <span style="color: green;">green point</span> ($w_0 = \ln(z_0)$) is the mapped fixed point (center of rotation and scaling) for the twist, and the <span style="color: orange;">diagonal orange arrow</span> shows the period direction $(\ln(\text{zoom}), 2\pi)$ that will be rotated and scaled into a vertical line. See the video's "Complex Logarithm" section starting at 25:56.
 1.  **Twisted Map**: We apply the "perfect" twist $w' = c \cdot (w - w_0) + w_0$ around the fixed point $w_0$, where $c = \frac{2\pi i}{\ln(\text{zoom}) + 2\pi i}$, rotating and scaling the <span style="color: orange;">orange arrow</span> to be vertical so the repeating strips align for a seamless spiral.
-1.  **Final Droste**: We apply the inverse transform $z = e^{w'}$, mapping the twisted grid back to a spiral.
+1.  **Final Droste**: We apply the inverse transform $z' = e^{w'}$, mapping the twisted grid back to a spiral.
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
   <div>
@@ -62,7 +62,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
 <div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px 0;">
   <div class="panel-box">
     <div id="panel-2" class="droste-panel"></div>
-    <div class="panel-label">3. Log-polar Map ($\ln(z)$)</div>
+    <div class="panel-label">3. Log-polar Map ($w = \ln(z)$)</div>
   </div>
   <div class="panel-box">
     <div id="panel-1" class="droste-panel"></div>
@@ -74,9 +74,59 @@ Below are five panels showing the transformation process. 2-5 are in the order s
   </div>
   <div class="panel-box">
     <div id="panel-4" class="droste-panel"></div>
-    <div class="panel-label">5. Final Droste ($e^{w'}$)</div>
+    <div class="panel-label">5. Final Droste ($z' = e^{w'}$)</div>
   </div>
 </div>
+
+### Mathematical Summary
+
+Let $Z$ be the Droste zoom factor ($2, 4, 8, \dots$) and $L = \ln(Z)$ be the logarithmic width of one zoom cycle.
+
+#### 1. The Forward Pipeline (Video Perspective)
+
+In the video, we think of pushing points **forward** from the original image $z$ to the final Droste image $z'$:
+
+1. **Crop to the $z$-plane**: Map the selected circle of radius $R$ centered at $u_{\text{center}}$ in the input image to the complex disk $\lvert z \rvert \le \pi$. The annulus between the inner dotted circle and outer solid circle is $\frac{\pi}{Z} \le \lvert z \rvert \le \pi$, and we choose a fixed point $z_0$ inside this region.
+2. **Complex Logarithm ($z \mapsto w$)**: Unroll the annulus into a vertical strip in the log-polar plane:
+
+   $$w = \ln(z) = \ln\lvert z \rvert + i\arg(z), \quad w_0 = \ln(z_0)$$
+
+   Tiling the annulus infinitely in all directions repeats this strip horizontally every $L$ and vertically every $2\pi$.
+3. **Twist Transformation ($w \mapsto w'$)**: Rotate and scale the tiled $w$-plane around the fixed point $w_0$ so that the diagonal period vector $L + 2\pi i$ is mapped onto the vertical period vector $2\pi i$:
+
+   $$w' = c \cdot (w - w_0) + w_0, \quad \text{where } c = \frac{2\pi i}{L + 2\pi i}$$
+
+4. **Complex Exponential ($w' \mapsto z'$)**: Wrap the twisted strip back into the complex plane:
+
+   $$z' = e^{w'} = e^{\text{Re}(w')}\left(\cos(\text{Im}(w')) + i\sin(\text{Im}(w'))\right)$$
+
+   Because $w'$ now repeats vertically with period $2\pi i$ across adjacent zoom strips, $e^{w'}$ connects them into a continuous, seamless spiral.
+
+#### 2. The Reverse Pipeline (Fragment Shader Perspective)
+
+In WebGL, a fragment shader runs per output pixel and must work **in reverse** — starting from a destination pixel coordinate and working backward to look up a color in the input texture:
+
+1. **Screen Pixel to Complex $z'$**: Map the normalized fragment coordinate $\text{uv} \in [0, 1]^2$ to $[-\pi, \pi]^2$:
+
+   $$z' = (\text{uv} \cdot 2 - 1)\pi$$
+
+2. **Unroll to the Twisted Plane ($z' \mapsto w'$)**: Apply the complex logarithm to find where this output pixel sits in the twisted plane:
+
+   $$w' = \ln(z') = \ln\lvert z' \rvert + i\operatorname{atan2}(z'_y, z'_x)$$
+
+3. **Inverse Twist ($w' \mapsto w$)**: Invert the twist transformation by dividing by $c$ around $w_0 = \ln(z_0)$ to recover the untwisted log-polar coordinate $w$:
+
+   $$w = \frac{w' - w_0}{c} + w_0, \quad \text{where } c = \frac{2\pi i}{L + 2\pi i}$$
+
+4. **Periodic Tiling ($\bmod$ into the Fundamental Annulus)**: Wrap $w$ back into the single source strip $\text{Re}(w) \in [\ln(\pi) - L, \ln(\pi)]$, $\text{Im}(w) \in [-\pi, \pi]$:
+
+   $$w_x \leftarrow \operatorname{mod}(w_x - \ln\pi,\; L) + \ln\pi - L$$
+
+   $$w_y \leftarrow \operatorname{mod}(w_y + \pi,\; 2\pi) - \pi$$
+
+5. **Map Back to Input Texture ($w \mapsto z \mapsto \text{uv}_{\text{sample}}$)**: Exponentiate $w$ back to the cropped $z$-plane and scale into the input texture's UV space:
+
+   $$z = e^w, \quad \text{uv}_{\text{sample}} = u_{\text{center}} + \frac{z}{\pi} \cdot R$$
 
 <style>
   .droste-panel {

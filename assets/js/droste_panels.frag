@@ -86,8 +86,6 @@ void drawFixedPoint(inout vec4 color, vec2 uv, vec2 pointUV) {
 }
 
 void main() {
-    // Standardize coordinates to [-PI, PI] for z-plane, and [-2.1*PI, 2.1*PI] for w-plane
-    vec2 z = (vUv * 2.0 - 1.0) * PI; 
     float mapScale = 2.1 * PI;
     vec2 sampleUV;
     
@@ -98,54 +96,60 @@ void main() {
     } 
     
     if (uMode == MODE_ORIGINAL) {
+        vec2 z = (vUv * 2.0 - 1.0) * PI;
         sampleUV = uCenterUV + (z / PI) * uSelectionRadius;
         gl_FragColor = texture2D(tDiffuse, sampleUV);
         drawFixedPoint(gl_FragColor, vUv, uFixedPointUV);
+        return;
     } 
-    else {
-        float L = log(uZoomFactor);
-        vec2 z0 = (uFixedPointUV * 2.0 - 1.0) * PI;
-        vec2 w0 = clog(z0);
-        vec2 w0UV = (w0 / mapScale + 1.0) * 0.5;
-        
-        // Step 1: Initialize Log-Polar coordinate (w)
-        // Mode 2 & 3 are viewed in the map plane (w), Mode 4 in the z-plane.
-        vec2 w = (uMode == MODE_LOG_POLAR || uMode == MODE_TRANSFORM)
-            ? (vUv * 2.0 - 1.0) * mapScale
-            : clog(z);
 
-        // Step 2: Apply Twist
-        if (uMode == MODE_TRANSFORM || uMode == MODE_DROSTE) {
-            vec2 num = vec2(0.0, TAU);
-            vec2 den = vec2(L, TAU);
-            vec2 c = cdiv(num, den);
-            
-            // Inverse mapping from twisted plane (w') back to log-polar plane (w)
-            w = cdiv(w - w0, c) + w0;
-        }
+    float L = log(uZoomFactor);
+    vec2 z0 = (uFixedPointUV * 2.0 - 1.0) * PI;
+    vec2 w0 = clog(z0);
+    vec2 w0UV = (w0 / mapScale + 1.0) * 0.5;
 
-        // Step 3: Periodic Tiling
-        w.x = mod(w.x - log(PI), L) + log(PI) - L;
-        w.y = mod(w.y + PI, TAU) - PI;
+    // Step 1: Screen Pixel to Complex z' (used by MODE_DROSTE)
+    vec2 zPrime = (vUv * 2.0 - 1.0) * PI;
 
-        // Step 4: Map back to Texture
-        vec2 finalZ = cexp(w);
-        sampleUV = uCenterUV + (finalZ / PI) * uSelectionRadius;
-        gl_FragColor = texture2D(tDiffuse, sampleUV);
+    // Step 2: Unroll to Twisted Plane (z' -> w')
+    // Mode 3 (MODE_TRANSFORM) starts directly in the w'-plane
+    vec2 wPrime = (uMode == MODE_TRANSFORM)
+        ? (vUv * 2.0 - 1.0) * mapScale
+        : clog(zPrime);
 
-        float dirSign = (w0UV.y > 0.5) ? -1.0 : 1.0;
+    // Step 3: Inverse Twist (w' -> w)
+    // Mode 2 (MODE_LOG_POLAR) starts directly in the untwisted w-plane
+    vec2 w;
+    if (uMode == MODE_LOG_POLAR) {
+        w = (vUv * 2.0 - 1.0) * mapScale;
+    } else {
+        vec2 num = vec2(0.0, TAU);
+        vec2 den = vec2(L, TAU);
+        vec2 c = cdiv(num, den);
+        w = cdiv(wPrime - w0, c) + w0;
+    }
 
-        if (uMode == MODE_LOG_POLAR) {
-            vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
-            vec2 endUV = w0UV + dirSign * vec2(L, TAU) / (2.0 * mapScale);
-            drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
-            drawFixedPoint(gl_FragColor, vUv, w0UV);
-        }
-        else if (uMode == MODE_TRANSFORM) {
-            vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
-            vec2 endUV = w0UV + dirSign * vec2(0.0, TAU) / (2.0 * mapScale);
-            drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
-            drawFixedPoint(gl_FragColor, vUv, w0UV);
-        }
+    // Step 4: Periodic Tiling (mod into the Fundamental Annulus)
+    w.x = mod(w.x - log(PI), L) + log(PI) - L;
+    w.y = mod(w.y + PI, TAU) - PI;
+
+    // Step 5: Map Back to Input Texture (w -> z -> sampleUV)
+    vec2 z = cexp(w);
+    sampleUV = uCenterUV + (z / PI) * uSelectionRadius;
+    gl_FragColor = texture2D(tDiffuse, sampleUV);
+
+    float dirSign = (w0UV.y > 0.5) ? -1.0 : 1.0;
+
+    if (uMode == MODE_LOG_POLAR) {
+        vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
+        vec2 endUV = w0UV + dirSign * vec2(L, TAU) / (2.0 * mapScale);
+        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
+        drawFixedPoint(gl_FragColor, vUv, w0UV);
+    }
+    else if (uMode == MODE_TRANSFORM) {
+        vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
+        vec2 endUV = w0UV + dirSign * vec2(0.0, TAU) / (2.0 * mapScale);
+        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
+        drawFixedPoint(gl_FragColor, vUv, w0UV);
     }
 }
