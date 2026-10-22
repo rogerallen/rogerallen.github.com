@@ -25,8 +25,9 @@ async function init() {
     const fragShader = await fetch('/assets/js/droste_panels.frag').then(r => r.text());
     
     // Global State (Uniforms)
+    const initialTexture = document.getElementById('texture-select')?.value || '/assets/image/grid.png';
     const uniforms = {
-        tDiffuse:             { value: textures['/assets/image/archery_target.png'] },
+        tDiffuse:             { value: textures[initialTexture] },
         uCenterUV:            { value: new THREE.Vector2(0.5, 0.5) },
         uFixedPointUV:        { value: new THREE.Vector2(0.55, 0.5) },
         uSelectionRadius:     { value: 0.2 },
