@@ -111,7 +111,7 @@ async function init() {
     // 2. Zoom Selection
     document.getElementById('zoom-select').addEventListener('change', (e) => {
         uniforms.uZoomFactor.value = parseFloat(e.target.value);
-        syncUniforms();
+        updateFixedPoint(uniforms.uFixedPointUV.value.x, uniforms.uFixedPointUV.value.y);
     });
 
     // 3. Selection Interaction (Panel 0) & Twist Fixed Point Interaction (Panel 1)
@@ -152,11 +152,19 @@ async function init() {
     });
 
     function updateFixedPoint(uvX, uvY) {
-        let px = Math.max(0.01, Math.min(0.99, uvX));
-        let py = Math.max(0.01, Math.min(0.99, uvY));
-        if (Math.hypot(px - 0.5, py - 0.5) < 0.005) {
-            px = 0.505;
+        const outerR = 0.5;
+        const innerR = outerR / uniforms.uZoomFactor.value;
+        let dx = uvX - 0.5;
+        let dy = uvY - 0.5;
+        let dist = Math.hypot(dx, dy);
+        if (dist < 1e-6) {
+            dx = 1.0;
+            dy = 0.0;
+            dist = 1.0;
         }
+        const clampedDist = Math.max(innerR, Math.min(outerR, dist));
+        const px = 0.5 + (dx / dist) * clampedDist;
+        const py = 0.5 + (dy / dist) * clampedDist;
         uniforms.uFixedPointUV.value.set(px, py);
         syncUniforms();
     }

@@ -19,7 +19,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
     1. the <span style="color: orange;">dotted orange circle</span> shows the selected zoom factor.
 
-1.  **Original Selection**: This is our starting point in the complex $z$-plane, cropped from the input image via the <span style="color: orange;">orange circular region</span>. You can click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
+1.  **Selected Image**: This is our starting point in the complex $z$-plane, cropped from the input image via the <span style="color: orange;">orange circular region</span>. You can click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
 1.  **Log-polar Map**: We apply $w = \ln(z)$, unrolling the circular selection into a rectangular map. This unrolls the annulus between the <span style="color: orange;">inner dotted orange circle</span> and the <span style="color: orange;">outer solid orange circle</span>. The <span style="color: green;">green point</span> ($w_0 = \ln(z_0)$) is the mapped fixed point (center of rotation and scaling) for the twist, and the <span style="color: orange;">diagonal orange arrow</span> shows the period direction $(\ln(\text{zoom}), 2\pi)$ that will be rotated and scaled into a vertical line. See the video's "Complex Logarithm" section starting at 25:56.
 1.  **Twisted Map**: We apply the "perfect" twist $w' = c \cdot (w - w_0) + w_0$ around the fixed point $w_0$, where $c = \frac{2\pi i}{\ln(\text{zoom}) + 2\pi i}$, rotating and scaling the <span style="color: orange;">orange arrow</span> to be vertical so the repeating strips align for a seamless spiral.
 1.  **Final Droste**: We apply the inverse transform $z' = e^{w'}$, mapping the twisted grid back to a spiral.
@@ -66,7 +66,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
   </div>
   <div class="panel-box">
     <div id="panel-1" class="droste-panel"></div>
-    <div class="panel-label">2. Original Image ($z$)</div>
+    <div class="panel-label">2. Selected Image ($z$)</div>
   </div>
   <div class="panel-box">
     <div id="panel-3" class="droste-panel"></div>

@@ -27,22 +27,22 @@ vec2 cdiv(vec2 a, vec2 b) { return vec2(dot(a, b), a.y * b.x - a.x * b.y) / dot(
 vec2 clog(vec2 a) { return vec2(log(length(a)), atan(a.y, a.x)); }
 vec2 cexp(vec2 a) { return exp(a.x) * vec2(cos(a.y), sin(a.y)); }
 
-void drawUI(inout vec4 color, vec2 uv) {
+void drawUI(inout vec4 color, vec2 uv, vec2 centerUV, float radius) {
     float res = uResolution.x;
-    float dCenter = length(uv - uCenterUV) * res;
-    float outerR  = uSelectionRadius * res;
-    float innerR  = (uSelectionRadius / uZoomFactor) * res;
+    float dCenter = length(uv - centerUV) * res;
+    float outerR  = radius * res;
+    float innerR  = (radius / uZoomFactor) * res;
     
     vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
 
     color = mix(color, orange, smoothstep(5.0, 4.0, dCenter));
     
     float thickness = 1.5;
-    color = mix(color, orange, smoothstep(thickness + 1.0, thickness, abs(length(uv - uCenterUV)*res - outerR)));
+    color = mix(color, orange, smoothstep(thickness + 1.0, thickness, abs(length(uv - centerUV)*res - outerR)));
     
-    float angle = atan(uv.y - uCenterUV.y, uv.x - uCenterUV.x);
+    float angle = atan(uv.y - centerUV.y, uv.x - centerUV.x);
     float dots = step(0.5, fract(angle * 30.0 / TAU));
-    color = mix(color, orange, smoothstep(thickness + 1.0, thickness, abs(length(uv - uCenterUV)*res - innerR)) * dots);
+    color = mix(color, orange, smoothstep(thickness + 1.0, thickness, abs(length(uv - centerUV)*res - innerR)) * dots);
 }
 
 void drawArrow(inout vec4 color, vec2 uv, vec2 startUV, vec2 endUV, vec4 arrowColor) {
@@ -91,7 +91,7 @@ void main() {
     
     if (uMode == MODE_RAW) {
         gl_FragColor = texture2D(tDiffuse, vUv);
-        drawUI(gl_FragColor, vUv);
+        drawUI(gl_FragColor, vUv, uCenterUV, uSelectionRadius);
         return;
     } 
     
@@ -99,6 +99,7 @@ void main() {
         vec2 z = (vUv * 2.0 - 1.0) * PI;
         sampleUV = uCenterUV + (z / PI) * uSelectionRadius;
         gl_FragColor = texture2D(tDiffuse, sampleUV);
+        drawUI(gl_FragColor, vUv, vec2(0.5, 0.5), 0.5);
         drawFixedPoint(gl_FragColor, vUv, uFixedPointUV);
         return;
     } 
