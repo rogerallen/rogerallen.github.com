@@ -18,8 +18,6 @@ uniform vec2      uCenterUV;      // Selection Center
 uniform vec2      uFixedPointUV;  // Twist Anchor (w0)
 uniform float     uSelectionRadius;
 uniform float     uZoomFactor;
-uniform float     uTweakReal;
-uniform float     uTweakImag;
 
 varying vec2 vUv;
 
@@ -121,10 +119,6 @@ void main() {
             vec2 num = vec2(0.0, TAU);
             vec2 den = vec2(L, TAU);
             vec2 c = cdiv(num, den);
-            
-            // Manual Tweaks
-            c.x += uTweakReal;
-            c.y -= uTweakImag;
             
             // Inverse mapping from twisted plane (w') back to log-polar plane (w)
             w = cdiv(w - w0, c) + w0;
