@@ -88,9 +88,9 @@ void drawFixedPoint(inout vec4 color, vec2 uv, vec2 pointUV) {
 }
 
 void main() {
-    // Standardize coordinates to [-PI, PI] for z-plane, and [-1.5*PI, 1.5*PI] for w-plane
+    // Standardize coordinates to [-PI, PI] for z-plane, and [-2.1*PI, 2.1*PI] for w-plane
     vec2 z = (vUv * 2.0 - 1.0) * PI; 
-    float mapScale = 1.5 * PI;
+    float mapScale = 2.1 * PI;
     vec2 sampleUV;
     
     if (uMode == MODE_RAW) {
@@ -139,15 +139,17 @@ void main() {
         sampleUV = uCenterUV + (finalZ / PI) * uSelectionRadius;
         gl_FragColor = texture2D(tDiffuse, sampleUV);
 
+        float dirSign = (w0UV.y > 0.5) ? -1.0 : 1.0;
+
         if (uMode == MODE_LOG_POLAR) {
             vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
-            vec2 endUV = w0UV + vec2(L, TAU) / (2.0 * mapScale);
+            vec2 endUV = w0UV + dirSign * vec2(L, TAU) / (2.0 * mapScale);
             drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
             drawFixedPoint(gl_FragColor, vUv, w0UV);
         }
         else if (uMode == MODE_TRANSFORM) {
             vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
-            vec2 endUV = w0UV + vec2(0.0, TAU) / (2.0 * mapScale);
+            vec2 endUV = w0UV + dirSign * vec2(0.0, TAU) / (2.0 * mapScale);
             drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
             drawFixedPoint(gl_FragColor, vUv, w0UV);
         }
