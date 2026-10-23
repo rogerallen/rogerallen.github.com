@@ -10,6 +10,8 @@ The [Droste effect](https://en.wikipedia.org/wiki/Droste_effect) is a recursive 
 
 I have always thought it would be fun to create these kinds of images myself, and being a graphics guy, why not write a WebGL shader to do this? There are a variety of tutorials and even software products that can manipulate your images, but creating these images in realtime is a fun challenge.
 
+_(**TL;DR:** [Just show me the pictures!](#the-result))_
+
 I attempted to follow the explanation from that Leiden University site to render the Droste effect via WebGL in my earlier [2014 Droste Effect Experiment](/webgl/2014/02/03/droste-effect-experiment) post. While I did get it "working", I can't say I really understood it. Finally, after watching this **excellent [3Blue1Brown video](https://www.youtube.com/watch?v=ldxFjLJ3rVY)**, I believe I understand the math well enough to (yes, with some AI help) create an interactive WebGL implementation.
 
 The thing that makes it conceptually difficult is, first, this is a complicated enough concept that it takes 45 minutes for an expert to explain it in four separate steps involving exponentials & logarithms. Then, in order to apply this in a WebGL context inside your browser, you need to reverse those steps and also project this onto a texture image with 0-1 coordinates.
@@ -106,14 +108,14 @@ gl_FragColor = texture2D(tDiffuse, sampleUV);
 
 Below are five panels showing the transformation process. 2-5 are in the order specified in the YouTube video. I added panel 1 to show an original image that we can select within.
 
-1.  **Select the input image** from the dropdown or upload your own image.
+1.  **Select the input image** from the dropdown or upload your own image. Best results with square images.
 1.  Within the **1. Input Image**, use the following controls to select the portion used:
     1. adjust the <span style="color: orange;">orange circular region</span> that we can read,
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
     1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 1.1x and 32x).
 
 1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist. The <span style="color: orange;">orange spiral arrow</span> winds one full $360^\circ$ turn inward from $z_0$ to $z_0 / Z$.
-1.  Watch the results move through the pipeline. In **3. Log-polar Map**, that <span style="color: orange;">orange spiral arrow</span> unrolls into a straight diagonal <span style="color: orange;">orange vector</span> from the <span style="color: green;">green point</span> ($w_0$), which **4. Twisted Map** rotates and scales into a vertical <span style="color: orange;">orange vector</span> of length $2\pi$ to produce **5. Final Droste Image**.
+1.  Watch the results move through the pipeline. In **3. Log-polar Map**, that <span style="color: orange;">orange spiral arrow</span> unrolls into a straight diagonal <span style="color: orange;">orange vector</span> from the <span style="color: green;">green point</span> ($w_0$) (flipped between $\pm(L + 2\pi i)$ to stay in view), which **4. Twisted Map** rotates and scales into a vertical <span style="color: orange;">orange vector</span> of length $2\pi$ to produce **5. Final Droste Image**.
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
   <div>
