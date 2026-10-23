@@ -27,7 +27,7 @@ In the video, we think of pushing points **forward** from the input texture (see
 Preliminaries:
 
 - We have an _outer selected circle_ of radius $R$ centered at $u_{\text{center}}$ in the normalized UV coordinates $[0, 1]^2$ of [**1. Input Image**](#panel-0).
-- Let $Z$ be the Droste zoom factor ($2 \le Z \le 32$). In the video, Grant used 16. $L = \ln(Z)$ will be the logarithmic width of one zoom cycle.
+- Let $Z$ be the Droste zoom factor ($1.1 \le Z \le 32$). In the video, Grant used 16. $L = \ln(Z)$ will be the logarithmic width of one zoom cycle.
 - We have an _inner selected circle_ that has a radius of $R / Z$ and is also centered at $u_{\text{center}}$ in [**1. Input Image**](#panel-0).
 - Inside the annulus between the _inner selected circle_ and _outer selected circle_ we choose a fixed point $z_0$ as a _pivot point_.
 
@@ -110,7 +110,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
 1.  Within the **1. Input Image**, use the following controls to select the portion used:
     1. adjust the <span style="color: orange;">orange circular region</span> that we can read,
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
-    1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 2x and 32x).
+    1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 1.1x and 32x).
 
 1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist. The <span style="color: orange;">orange spiral arrow</span> winds one full $360^\circ$ turn inward from $z_0$ to $z_0 / Z$.
 1.  Watch the results move through the pipeline. In **3. Log-polar Map**, that <span style="color: orange;">orange spiral arrow</span> unrolls into a straight diagonal <span style="color: orange;">orange vector</span> from the <span style="color: green;">green point</span> ($w_0$), which **4. Twisted Map** rotates and scales into a vertical <span style="color: orange;">orange vector</span> of length $2\pi$ to produce **5. Final Droste Image**.

@@ -197,7 +197,7 @@ async function init() {
       uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY)),
     );
     const zoom = uniforms.uSelectionRadius.value / innerRadius;
-    const clampedZoom = Math.max(2.0, Math.min(32.0, zoom));
+    const clampedZoom = Math.max(1.1, Math.min(32.0, zoom));
     uniforms.uZoomFactor.value = clampedZoom;
     if (zoomDisplay) {
       zoomDisplay.textContent = `${clampedZoom.toFixed(1)}x`;
@@ -215,7 +215,10 @@ async function init() {
     const px = uniforms.uCenterUV.value.x;
     const py = uniforms.uCenterUV.value.y;
     const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
-    uniforms.uSelectionRadius.value = Math.max(0.05, Math.min(radius, maxRadius));
+    uniforms.uSelectionRadius.value = Math.max(
+      0.05,
+      Math.min(radius, maxRadius),
+    );
     syncUniforms();
   }
 
