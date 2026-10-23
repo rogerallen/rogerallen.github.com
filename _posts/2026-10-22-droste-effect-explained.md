@@ -114,7 +114,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
     1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 1.1x and 32x).
 
-1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist. The <span style="color: orange;">orange spiral arrow</span> winds one full $360^\circ$ turn inward from $z_0$ to $z_0 / Z$.
+1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed pivot point for the twist. The <span style="color: orange;">orange spiral arrow</span> winds one full $360^\circ$ turn inward from $z_0$ to $z_0 / Z$.
 1.  Watch the results move through the pipeline. In **3. Log-polar Map**, that <span style="color: orange;">orange spiral arrow</span> unrolls into a straight diagonal <span style="color: orange;">orange vector</span> from the <span style="color: green;">green point</span> ($w_0$) (flipped between $\pm(L + 2\pi i)$ to stay in view), which **4. Twisted Map** rotates and scales into a vertical <span style="color: orange;">orange vector</span> of length $2\pi$ to produce **5. Final Droste Image**.
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
@@ -137,7 +137,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
 <div id="raw-image-container" style="width: 100%; max-width: 800px; margin: 0 0 20px 0; text-align: left; display: flex; align-items: flex-start; gap: 20px;">
   <div class="panel-box" style="flex: 0 0 50%;">
     <div id="panel-0" class="droste-panel" style="width: 100%; margin: 0;"></div>
-    <div class="panel-label">1. Input Image</div>
+    <div class="panel-label">1. Input Image <em>(adjust circle sizes here)</em></div>
   </div>
   <div style="padding-top: 25px;">
     <strong>Droste Zoom: <span id="zoom-display">4.0x</span></strong>
@@ -151,7 +151,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
   </div>
   <div class="panel-box">
     <div id="panel-1" class="droste-panel"></div>
-    <div class="panel-label">2. Selected Image</div>
+    <div class="panel-label">2. Selected Image <em>(adjust pivot point $z_0$ here)</em></div>
   </div>
   <div class="panel-box">
     <div id="panel-3" class="droste-panel"></div>
@@ -177,6 +177,10 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     margin-top: 5px;
     font-weight: bold;
     font-size: 0.9em;
+  }
+  .panel-label em {
+    font-weight: normal;
+    font-style: italic;
   }
 </style>
 
