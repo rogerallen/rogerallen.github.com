@@ -107,6 +107,8 @@ void main() {
         gl_FragColor = texture2D(tDiffuse, sampleUV);
 
         drawUI(gl_FragColor, vUv, vec2(0.5, 0.5), 0.5);
+        vec2 endUV = vec2(0.5, 0.5) + (uFixedPointUV - vec2(0.5, 0.5)) / uZoomFactor;
+        drawArrow(gl_FragColor, vUv, uFixedPointUV, endUV, orange);
         drawFixedPoint(gl_FragColor, vUv, uFixedPointUV);
     }
     else if (uMode == MODE_LOG_POLAR) {
