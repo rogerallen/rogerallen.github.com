@@ -63,7 +63,8 @@ header#sidebar h3 {
 }
 
 /* fix up body font */
-p {
+p,
+header#begin + article.post li {
     font-family: "Times New Roman", Times, serif
 }
 
