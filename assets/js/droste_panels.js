@@ -60,7 +60,7 @@ async function init() {
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
+    renderer.setSize(width, height, false);
     container.appendChild(renderer.domElement);
 
     const material = new THREE.ShaderMaterial({
@@ -278,11 +278,14 @@ async function init() {
   window.addEventListener("touchend", onEnd);
   window.addEventListener("touchcancel", onEnd);
 
+  let lastWindowWidth = window.innerWidth;
   window.addEventListener("resize", () => {
+    if (window.innerWidth === lastWindowWidth) return;
+    lastWindowWidth = window.innerWidth;
     apps.forEach((app) => {
       const width = app.container.clientWidth;
       const height = app.container.clientHeight;
-      app.renderer.setSize(width, height);
+      app.renderer.setSize(width, height, false);
       app.material.uniforms.uResolution.value.set(width, height);
     });
   });

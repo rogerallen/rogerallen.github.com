@@ -144,7 +144,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
   </div>
 </div>
 
-<div id="droste-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 800px; margin: 20px 0;">
+<div id="droste-container" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; width: 100%; max-width: 800px; margin: 20px 0;">
   <div class="panel-box">
     <div id="panel-2" class="droste-panel"></div>
     <div class="panel-label">3. Log-polar Map</div>
@@ -169,9 +169,17 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     aspect-ratio: 1 / 1;
     background: #f0f0f0;
     border: 1px solid #ccc;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .droste-panel canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
   }
   .panel-box {
     text-align: left;
+    min-width: 0;
   }
   .panel-label {
     margin-top: 5px;
