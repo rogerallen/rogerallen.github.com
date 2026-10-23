@@ -75,6 +75,33 @@ In WebGL, a fragment shader runs per output pixel and must work **in reverse** â
 
    $$z = e^w, \quad \text{uv}_{\text{sample}} = u_{\text{center}} + \frac{z}{\pi} \cdot R$$
 
+#### The Reverse Fragment Shader
+
+Those 5 steps become this fragment shader (see [droste_panels.frag](/assets/js/droste_panels.frag) for the full code):
+
+```glsl
+// vUv is the normalized fragment coordinate in [0, 1]^2
+
+// Step 1: Screen Pixel to Complex z'
+vec2 zPrime = (vUv * 2.0 - 1.0) * PI;
+
+// Step 2: Unroll to Twisted Plane (z' -> w')
+vec2 wPrime = clog(zPrime);
+
+// Step 3: Inverse Twist (w' -> w)
+vec2 c = cdiv(vec2(0.0, TAU), vec2(L, TAU));
+vec2 w = cdiv(wPrime - w0, c) + w0;
+
+// Step 4: Periodic Tiling (mod into the Fundamental Annulus)
+w.x = mod(w.x - log(PI), L) + log(PI) - L;
+w.y = mod(w.y + PI, TAU) - PI;
+
+// Step 5: Map Back to Input Texture (w -> z -> sampleUV)
+vec2 z = cexp(w);
+vec2 sampleUV = uCenterUV + (z / PI) * uSelectionRadius;
+gl_FragColor = texture2D(tDiffuse, sampleUV);
+```
+
 ### The Result
 
 Below are five panels showing the transformation process. 2-5 are in the order specified in the YouTube video. I added panel 1 to show an original image that we can select within.
