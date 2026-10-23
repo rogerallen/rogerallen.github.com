@@ -5,11 +5,11 @@ precision highp float;
 #define INVPI 0.3183098861837907
 
 // Mode Definitions
-#define MODE_RAW        0  // Full texture with interactive UI
-#define MODE_ORIGINAL   1  // The "z-plane": a cropped circular view
-#define MODE_LOG_POLAR  2  // The "w-plane": unrolling the circle into a map
-#define MODE_TRANSFORM  3  // The "w'-plane": twisting the map
-#define MODE_DROSTE     4  // The "Final Result": mapping w' back to the z-plane
+#define MODE_INPUT      0  // 1. Input Image: Full texture with interactive UI
+#define MODE_SELECTED   1  // 2. Selected Image: The "z-plane" cropped view
+#define MODE_LOG_POLAR  2  // 3. Log-polar Map: The "w-plane" unrolled map
+#define MODE_TWISTED    3  // 4. Twisted Map: The "w'-plane" twisted map
+#define MODE_DROSTE     4  // 5. Final Droste Image: The "z'-plane" spiral result
 
 uniform sampler2D tDiffuse;
 uniform int       uMode;
@@ -89,13 +89,13 @@ void main() {
     float mapScale = 2.1 * PI;
     vec2 sampleUV;
     
-    if (uMode == MODE_RAW) {
+    if (uMode == MODE_INPUT) {
         gl_FragColor = texture2D(tDiffuse, vUv);
         drawUI(gl_FragColor, vUv, uCenterUV, uSelectionRadius);
         return;
     } 
     
-    if (uMode == MODE_ORIGINAL) {
+    if (uMode == MODE_SELECTED) {
         vec2 z = (vUv * 2.0 - 1.0) * PI;
         sampleUV = uCenterUV + (z / PI) * uSelectionRadius;
         gl_FragColor = texture2D(tDiffuse, sampleUV);
@@ -113,8 +113,8 @@ void main() {
     vec2 zPrime = (vUv * 2.0 - 1.0) * PI;
 
     // Step 2: Unroll to Twisted Plane (z' -> w')
-    // Mode 3 (MODE_TRANSFORM) starts directly in the w'-plane
-    vec2 wPrime = (uMode == MODE_TRANSFORM)
+    // Mode 3 (MODE_TWISTED) starts directly in the w'-plane
+    vec2 wPrime = (uMode == MODE_TWISTED)
         ? (vUv * 2.0 - 1.0) * mapScale
         : clog(zPrime);
 
@@ -147,7 +147,7 @@ void main() {
         drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
         drawFixedPoint(gl_FragColor, vUv, w0UV);
     }
-    else if (uMode == MODE_TRANSFORM) {
+    else if (uMode == MODE_TWISTED) {
         vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
         vec2 endUV = w0UV + dirSign * vec2(0.0, TAU) / (2.0 * mapScale);
         drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);

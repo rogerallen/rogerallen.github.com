@@ -2,10 +2,10 @@ import * as THREE from './modules/r150/three.module.js';
 
 async function init() {
     const panels = [
-        { id: 'panel-0', mode: 0 }, // MODE_RAW
-        { id: 'panel-1', mode: 1 }, // MODE_ORIGINAL
+        { id: 'panel-0', mode: 0 }, // MODE_INPUT
+        { id: 'panel-1', mode: 1 }, // MODE_SELECTED
         { id: 'panel-2', mode: 2 }, // MODE_LOG_POLAR
-        { id: 'panel-3', mode: 3 }, // MODE_TRANSFORM
+        { id: 'panel-3', mode: 3 }, // MODE_TWISTED
         { id: 'panel-4', mode: 4 }  // MODE_DROSTE
     ];
 
