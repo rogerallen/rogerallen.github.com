@@ -124,18 +124,10 @@ async function init() {
     }
   });
 
-  // 2. Zoom Selection
-  document.getElementById("zoom-select").addEventListener("change", (e) => {
-    uniforms.uZoomFactor.value = parseFloat(e.target.value);
-    updateFixedPoint(
-      uniforms.uFixedPointUV.value.x,
-      uniforms.uFixedPointUV.value.y,
-    );
-  });
-
-  // 3. Selection Interaction (Panel 0) & Twist Fixed Point Interaction (Panel 1)
+  // 2. Selection Interaction (Panel 0) & Twist Fixed Point Interaction (Panel 1)
   let activeSourcePanel = null;
-  let dragMode = null; // 'center', 'fixed', or 'radius'
+  let dragMode = null; // 'center', 'fixed', 'zoom', or 'radius'
+  const zoomDisplay = document.getElementById("zoom-display");
 
   const sourcePanels = apps.filter((app) => app.id === "panel-0");
   sourcePanels.forEach((app) => {
@@ -149,9 +141,18 @@ async function init() {
       const distToCenter = uniforms.uCenterUV.value.distanceTo(
         new THREE.Vector2(uvX, uvY),
       );
+      const outerRadius = uniforms.uSelectionRadius.value;
+      const innerRadius = outerRadius / uniforms.uZoomFactor.value;
+      const centerThreshold = Math.min(0.03, innerRadius * 0.6);
 
-      if (distToCenter < 0.05) {
+      if (distToCenter < centerThreshold) {
         dragMode = "center";
+      } else if (
+        Math.abs(distToCenter - innerRadius) <
+        Math.abs(distToCenter - outerRadius)
+      ) {
+        dragMode = "zoom";
+        updateZoom(uvX, uvY);
       } else {
         dragMode = "radius";
         updateRadius(uvX, uvY);
@@ -159,8 +160,8 @@ async function init() {
     });
   });
 
-  const originalPanels = apps.filter((app) => app.id === "panel-1");
-  originalPanels.forEach((app) => {
+  const selectedPanels = apps.filter((app) => app.id === "panel-1");
+  selectedPanels.forEach((app) => {
     app.container.style.cursor = "crosshair";
     app.container.addEventListener("mousedown", (e) => {
       activeSourcePanel = app;
@@ -190,6 +191,23 @@ async function init() {
     syncUniforms();
   }
 
+  function updateZoom(uvX, uvY) {
+    const innerRadius = Math.max(
+      1e-6,
+      uniforms.uCenterUV.value.distanceTo(new THREE.Vector2(uvX, uvY)),
+    );
+    const zoom = uniforms.uSelectionRadius.value / innerRadius;
+    const clampedZoom = Math.max(2.0, Math.min(32.0, zoom));
+    uniforms.uZoomFactor.value = clampedZoom;
+    if (zoomDisplay) {
+      zoomDisplay.textContent = `${clampedZoom.toFixed(1)}x`;
+    }
+    updateFixedPoint(
+      uniforms.uFixedPointUV.value.x,
+      uniforms.uFixedPointUV.value.y,
+    );
+  }
+
   function updateRadius(uvX, uvY) {
     const radius = uniforms.uCenterUV.value.distanceTo(
       new THREE.Vector2(uvX, uvY),
@@ -197,7 +215,7 @@ async function init() {
     const px = uniforms.uCenterUV.value.x;
     const py = uniforms.uCenterUV.value.y;
     const maxRadius = Math.min(px, 1.0 - px, py, 1.0 - py);
-    uniforms.uSelectionRadius.value = Math.min(radius, maxRadius);
+    uniforms.uSelectionRadius.value = Math.max(0.05, Math.min(radius, maxRadius));
     syncUniforms();
   }
 
@@ -224,6 +242,7 @@ async function init() {
 
       if (dragMode === "center") updateCenter(uvX, uvY);
       else if (dragMode === "fixed") updateFixedPoint(uvX, uvY);
+      else if (dragMode === "zoom") updateZoom(uvX, uvY);
       else if (dragMode === "radius") updateRadius(uvX, uvY);
     }
   });

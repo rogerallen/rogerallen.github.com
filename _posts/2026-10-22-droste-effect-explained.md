@@ -110,7 +110,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
 1.  Within the **1. Input Image**, use the following controls to select the portion used:
     1. adjust the <span style="color: orange;">orange circular region</span> that we can read,
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
-    1. the <span style="color: orange;">dotted orange circle</span> shows the selected zoom factor which is controlled via the **Droste Zoom** dropdown.
+    1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 2x and 32x).
 
 1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
 1.  Watch the results move through the pipeline. In **3. Log-polar Map** and **4. Twisted Map**, note the <span style="color: green;">green point</span> ($w_0$) is projected along with an <span style="color: orange;">orange vector</span> that we rotate and scale for the twist to produce **5. Final Droste Image**.
@@ -138,17 +138,7 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     <div class="panel-label">1. Input Image</div>
   </div>
   <div style="padding-top: 25px;">
-    <label for="zoom-select"><strong>Droste Zoom:</strong></label><br>
-    <select id="zoom-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; margin-top: 5px;">
-      <option value="2">2x</option>
-      <option value="4" selected>4x</option>
-      <option value="8">8x</option>
-      <option value="16">16x</option>
-      <option value="32">32x</option>
-    </select>
-    <p style="font-size: 0.85em; color: #666; margin-top: 10px; max-width: 200px;">
-      The ratio between the outer and inner circles of the transformation.
-    </p>
+    <strong>Droste Zoom: <span id="zoom-display">4.0x</span></strong>
   </div>
 </div>
 
