@@ -129,21 +129,31 @@ async function init() {
   let dragMode = null; // 'center', 'fixed', 'zoom', or 'radius'
   const zoomDisplay = document.getElementById("zoom-display");
 
+  function getEventUV(e, container) {
+    const point = e.touches && e.touches.length > 0 ? e.touches[0] : e;
+    const rect = container.getBoundingClientRect();
+    const uvX = (point.clientX - rect.left) / rect.width;
+    const uvY = 1.0 - (point.clientY - rect.top) / rect.height;
+    return { uvX, uvY };
+  }
+
   const sourcePanels = apps.filter((app) => app.id === "panel-0");
   sourcePanels.forEach((app) => {
     app.container.style.cursor = "crosshair";
-    app.container.addEventListener("mousedown", (e) => {
+    app.container.style.touchAction = "none";
+    app.renderer.domElement.style.touchAction = "none";
+
+    const onStart = (e) => {
+      if (e.cancelable) e.preventDefault();
       activeSourcePanel = app;
-      const rect = app.container.getBoundingClientRect();
-      const uvX = (e.clientX - rect.left) / rect.width;
-      const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+      const { uvX, uvY } = getEventUV(e, app.container);
 
       const distToCenter = uniforms.uCenterUV.value.distanceTo(
         new THREE.Vector2(uvX, uvY),
       );
       const outerRadius = uniforms.uSelectionRadius.value;
       const innerRadius = outerRadius / uniforms.uZoomFactor.value;
-      const centerThreshold = Math.min(0.03, innerRadius * 0.6);
+      const centerThreshold = Math.min(0.05, innerRadius * 0.6);
 
       if (distToCenter < centerThreshold) {
         dragMode = "center";
@@ -157,20 +167,28 @@ async function init() {
         dragMode = "radius";
         updateRadius(uvX, uvY);
       }
-    });
+    };
+
+    app.container.addEventListener("mousedown", onStart);
+    app.container.addEventListener("touchstart", onStart, { passive: false });
   });
 
   const selectedPanels = apps.filter((app) => app.id === "panel-1");
   selectedPanels.forEach((app) => {
     app.container.style.cursor = "crosshair";
-    app.container.addEventListener("mousedown", (e) => {
+    app.container.style.touchAction = "none";
+    app.renderer.domElement.style.touchAction = "none";
+
+    const onStart = (e) => {
+      if (e.cancelable) e.preventDefault();
       activeSourcePanel = app;
       dragMode = "fixed";
-      const rect = app.container.getBoundingClientRect();
-      const uvX = (e.clientX - rect.left) / rect.width;
-      const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+      const { uvX, uvY } = getEventUV(e, app.container);
       updateFixedPoint(uvX, uvY);
-    });
+    };
+
+    app.container.addEventListener("mousedown", onStart);
+    app.container.addEventListener("touchstart", onStart, { passive: false });
   });
 
   function updateFixedPoint(uvX, uvY) {
@@ -236,23 +254,37 @@ async function init() {
     syncUniforms();
   }
 
-  // Global Mouse Handlers
-  window.addEventListener("mousemove", (e) => {
+  // Global Mouse & Touch Handlers
+  const onMove = (e) => {
     if (activeSourcePanel) {
-      const rect = activeSourcePanel.container.getBoundingClientRect();
-      const uvX = (e.clientX - rect.left) / rect.width;
-      const uvY = 1.0 - (e.clientY - rect.top) / rect.height;
+      if (e.cancelable) e.preventDefault();
+      const { uvX, uvY } = getEventUV(e, activeSourcePanel.container);
 
       if (dragMode === "center") updateCenter(uvX, uvY);
       else if (dragMode === "fixed") updateFixedPoint(uvX, uvY);
       else if (dragMode === "zoom") updateZoom(uvX, uvY);
       else if (dragMode === "radius") updateRadius(uvX, uvY);
     }
-  });
+  };
 
-  window.addEventListener("mouseup", () => {
+  const onEnd = () => {
     activeSourcePanel = null;
     dragMode = null;
+  };
+
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("touchmove", onMove, { passive: false });
+  window.addEventListener("mouseup", onEnd);
+  window.addEventListener("touchend", onEnd);
+  window.addEventListener("touchcancel", onEnd);
+
+  window.addEventListener("resize", () => {
+    apps.forEach((app) => {
+      const width = app.container.clientWidth;
+      const height = app.container.clientHeight;
+      app.renderer.setSize(width, height);
+      app.material.uniforms.uResolution.value.set(width, height);
+    });
   });
 
   // --- Render Loop ---
