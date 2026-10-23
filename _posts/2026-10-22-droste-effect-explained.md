@@ -119,6 +119,8 @@ Below are five panels showing the transformation process. 2-5 are in the order s
   <div>
     <label for="texture-select"><strong>Select Input Image:</strong></label>
     <select id="texture-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+      <option value="/assets/image/gemini-droste-2.jpg" selected>Gemini Droste 2</option>
+      <option value="/assets/image/gemini-droste-1.jpg">Gemini Droste 1</option>
       <option value="/assets/image/grid.png">Grid</option>
       <option value="/assets/image/archery_target.png">Archery Target</option>
       <option value="/assets/image/uhrenmacher.jpg">Uhrenmacher</option>
