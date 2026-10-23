@@ -80,13 +80,13 @@ In WebGL, a fragment shader runs per output pixel and must work **in reverse** â
 Below are five panels showing the transformation process. 2-5 are in the order specified in the YouTube video. I added panel 1 to show an original image that we can select within.
 
 1.  **Select the input image** from the dropdown or upload your own image.
-1.  Within the **1. Input Image** use the following controls to the portion used.
+1.  Within the **1. Input Image**, use the following controls to select the portion used:
     1. adjust the <span style="color: orange;">orange circular region</span> that we can read,
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
     1. the <span style="color: orange;">dotted orange circle</span> shows the selected zoom factor which is controlled via the **Droste Zoom** dropdown.
 
 1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
-1.  Watch the results move through the pipeline. In **3. Log-polar Map**, **Twisted Map** note the <span style="color: green;">green point</span> ($z_0$) is projected along with an <span style="color: orange;">orange vector</span> we rotate and scale for the twist and the **Final Droste Image**.
+1.  Watch the results move through the pipeline. In **3. Log-polar Map** and **4. Twisted Map**, note the <span style="color: green;">green point</span> ($w_0$) is projected along with an <span style="color: orange;">orange vector</span> that we rotate and scale for the twist to produce **5. Final Droste Image**.
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
   <div>
