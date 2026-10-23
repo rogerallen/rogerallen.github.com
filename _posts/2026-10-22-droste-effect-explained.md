@@ -22,7 +22,7 @@ First, we will summarize the steps as presented in the video. We'll call this _T
 
 #### 1. The Forward Pipeline
 
-In the video, we think of pushing points **forward** from the original image $z$ (see the **1. Input Image** below) to the final Droste image $z'$ (see the **5. Final Droste** below):
+In the video, we think of pushing points **forward** from the original image $z$ (see [**1. Input Image**](#panel-0) below) to the final Droste image $z'$ (see [**5. Final Droste Image**](#panel-4) below):
 
 Preliminaries:
 
@@ -31,19 +31,19 @@ Preliminaries:
 - We have an _inner selected circle_ that has a radius of $R / Z$ and is also centered at $u_{\text{center}}$ in the input image $z$.
 - Inside the annulus between the _inner selected circle_ and _outer selected circle_ we choose a fixed point $z_0$ as a _pivot point_.
 
-1. **Crop to the $z$-plane (see 2. Selected Image)**: Map the selected image to the complex disk $\lvert z \rvert \le \pi$. The annulus between the _inner selected circle_ and _outer selected circle_ is $\frac{\pi}{Z} \le \lvert z \rvert \le \pi$.
+1. **Crop to the $z$-plane (see [2. Selected Image](#panel-1))**: Map the selected image to the complex disk $\lvert z \rvert \le \pi$. The annulus between the _inner selected circle_ and _outer selected circle_ is $\frac{\pi}{Z} \le \lvert z \rvert \le \pi$.
 
-2. **Complex Logarithm ($z \mapsto w$) (see 3. Log-polar Map)**: Unroll the annulus into a vertical strip in the log-polar plane:
+2. **Complex Logarithm ($z \mapsto w$) (see [3. Log-polar Map](#panel-2))**: Unroll the annulus into a vertical strip in the log-polar plane:
 
    $$w = \ln(z) = \ln\lvert z \rvert + i\arg(z), \quad w_0 = \ln(z_0)$$
 
    Tiling the annulus infinitely in all directions repeats this strip horizontally every $L$ and vertically every $2\pi$.
 
-3. **Twist Transformation ($w \mapsto w'$) (see 4. Twisted Map)**: Rotate and scale the tiled $w$-plane around the fixed point $w_0$ so that the diagonal period vector $L + 2\pi i$ is mapped onto the vertical period vector $2\pi i$:
+3. **Twist Transformation ($w \mapsto w'$) (see [4. Twisted Map](#panel-3))**: Rotate and scale the tiled $w$-plane around the fixed point $w_0$ so that the diagonal period vector $L + 2\pi i$ is mapped onto the vertical period vector $2\pi i$:
 
    $$w' = c \cdot (w - w_0) + w_0, \quad \text{where } c = \frac{2\pi i}{L + 2\pi i}$$
 
-4. **Complex Exponential ($w' \mapsto z'$) (see 5. Final Droste)**: Wrap the twisted strip back into the complex plane:
+4. **Complex Exponential ($w' \mapsto z'$) (see [5. Final Droste Image](#panel-4))**: Wrap the twisted strip back into the complex plane:
 
    $$z' = e^{w'} = e^{\text{Re}(w')}\left(\cos(\text{Im}(w')) + i\sin(\text{Im}(w'))\right)$$
 
