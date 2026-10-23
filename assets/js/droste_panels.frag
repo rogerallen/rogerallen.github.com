@@ -2,7 +2,6 @@ precision highp float;
 
 #define PI    3.14159265358979323846
 #define TAU   6.28318530717958647692
-#define INVPI 0.3183098861837907
 
 // Mode Definitions
 #define MODE_INPUT      0  // 1. Input Image: Full texture with interactive UI
@@ -15,7 +14,7 @@ uniform sampler2D tDiffuse;
 uniform int       uMode;
 uniform vec2      uResolution; 
 uniform vec2      uCenterUV;      // Selection Center
-uniform vec2      uFixedPointUV;  // Twist Anchor (w0)
+uniform vec2      uFixedPointUV;  // Twist Anchor (z0 in UV space)
 uniform float     uSelectionRadius;
 uniform float     uZoomFactor;
 
@@ -45,7 +44,7 @@ void drawUI(inout vec4 color, vec2 uv, vec2 centerUV, float radius) {
     color = mix(color, orange, smoothstep(thickness + 1.0, thickness, abs(length(uv - centerUV)*res - innerR)) * dots);
 }
 
-void drawArrow(inout vec4 color, vec2 uv, vec2 startUV, vec2 endUV, vec4 arrowColor) {
+void drawArrow(inout vec4 color, vec2 uv, vec2 startUV, vec2 endUV, vec4 arrowColor, bool dotted) {
     float res = uResolution.x;
     vec2 p = uv * res;
     vec2 a = startUV * res;
@@ -55,13 +54,14 @@ void drawArrow(inout vec4 color, vec2 uv, vec2 startUV, vec2 endUV, vec4 arrowCo
     vec2 ba = b - a;
     float baLenSq = dot(ba, ba);
     if (baLenSq < 1.0) return;
+    float baLen = sqrt(baLenSq);
 
     float h = clamp(dot(pa, ba) / baLenSq, 0.0, 1.0);
     float dShaft = length(pa - ba * h);
 
     float headLen = 12.0;
     float headWidth = 6.0;
-    vec2 dir = normalize(ba);
+    vec2 dir = ba / baLen;
     vec2 perp = vec2(-dir.y, dir.x);
     vec2 bw1 = -dir * headLen + perp * headWidth;
     vec2 bw2 = -dir * headLen - perp * headWidth;
@@ -73,9 +73,13 @@ void drawArrow(inout vec4 color, vec2 uv, vec2 startUV, vec2 endUV, vec4 arrowCo
     float h2 = clamp(dot(pb, bw2) / dot(bw2, bw2), 0.0, 1.0);
     float dWing2 = length(pb - bw2 * h2);
 
-    float d = min(dShaft, min(dWing1, dWing2));
     float thickness = 1.5;
-    color = mix(color, arrowColor, smoothstep(thickness + 1.0, thickness, d));
+    float shaftMask = smoothstep(thickness + 1.0, thickness, dShaft);
+    if (dotted) {
+        shaftMask *= step(0.5, fract((h * baLen) / 8.0));
+    }
+    float headMask = smoothstep(thickness + 1.0, thickness, min(dWing1, dWing2));
+    color = mix(color, arrowColor, max(shaftMask, headMask));
 }
 
 void drawFixedPoint(inout vec4 color, vec2 uv, vec2 pointUV) {
@@ -93,6 +97,7 @@ void main() {
     vec2 w0UV = (w0 / mapScale + 1.0) * 0.5;
     float dirSign = (w0UV.y > 0.5) ? -1.0 : 1.0;
     vec4 orange = vec4(1.0, 0.6, 0.0, 1.0);
+    vec4 yellow = vec4(1.0, 0.9, 0.0, 1.0);
 
     if (uMode == MODE_INPUT) {
         gl_FragColor = texture2D(tDiffuse, vUv);
@@ -108,7 +113,7 @@ void main() {
 
         drawUI(gl_FragColor, vUv, vec2(0.5, 0.5), 0.5);
         vec2 endUV = vec2(0.5, 0.5) + (uFixedPointUV - vec2(0.5, 0.5)) / uZoomFactor;
-        drawArrow(gl_FragColor, vUv, uFixedPointUV, endUV, orange);
+        drawArrow(gl_FragColor, vUv, uFixedPointUV, endUV, yellow, true);
         drawFixedPoint(gl_FragColor, vUv, uFixedPointUV);
     }
     else if (uMode == MODE_LOG_POLAR) {
@@ -125,7 +130,7 @@ void main() {
         gl_FragColor = texture2D(tDiffuse, sampleUV);
 
         vec2 endUV = w0UV + dirSign * vec2(L, TAU) / (2.0 * mapScale);
-        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
+        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange, false);
         drawFixedPoint(gl_FragColor, vUv, w0UV);
     }
     else if (uMode == MODE_TWISTED) {
@@ -146,7 +151,7 @@ void main() {
         gl_FragColor = texture2D(tDiffuse, sampleUV);
 
         vec2 endUV = w0UV + dirSign * vec2(0.0, TAU) / (2.0 * mapScale);
-        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange);
+        drawArrow(gl_FragColor, vUv, w0UV, endUV, orange, false);
         drawFixedPoint(gl_FragColor, vUv, w0UV);
     }
     else if (uMode == MODE_DROSTE) {

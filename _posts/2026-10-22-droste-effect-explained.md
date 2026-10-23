@@ -22,16 +22,16 @@ First, we will summarize the steps as presented in the video. We'll call this _T
 
 #### 1. The Forward Pipeline
 
-In the video, we think of pushing points **forward** from the original image $z$ (see [**1. Input Image**](#panel-0) below) to the final Droste image $z'$ (see [**5. Final Droste Image**](#panel-4) below):
+In the video, we think of pushing points **forward** from the input texture (see [**1. Input Image**](#panel-0) below) through the cropped complex plane $z$ (see [**2. Selected Image**](#panel-1) below) to the final Droste image $z'$ (see [**5. Final Droste Image**](#panel-4) below):
 
 Preliminaries:
 
-- We have an _outer selected circle_ which is a circle of radius $R$ centered at $u_{\text{center}}$ in the input image $z$.
-- Let $Z$ be the Droste zoom factor ($2, 4, 8, \dots$). In the video, Grant used 16. $L = \ln(Z)$ will be the logarithmic width of one zoom cycle.
-- We have an _inner selected circle_ that has a radius of $R / Z$ and is also centered at $u_{\text{center}}$ in the input image $z$.
+- We have an _outer selected circle_ of radius $R$ centered at $u_{\text{center}}$ in the normalized UV coordinates $[0, 1]^2$ of [**1. Input Image**](#panel-0).
+- Let $Z$ be the Droste zoom factor ($2 \le Z \le 32$). In the video, Grant used 16. $L = \ln(Z)$ will be the logarithmic width of one zoom cycle.
+- We have an _inner selected circle_ that has a radius of $R / Z$ and is also centered at $u_{\text{center}}$ in [**1. Input Image**](#panel-0).
 - Inside the annulus between the _inner selected circle_ and _outer selected circle_ we choose a fixed point $z_0$ as a _pivot point_.
 
-1. **Crop to the $z$-plane (see [2. Selected Image](#panel-1))**: Map the selected image to the complex disk $\lvert z \rvert \le \pi$. The annulus between the _inner selected circle_ and _outer selected circle_ is $\frac{\pi}{Z} \le \lvert z \rvert \le \pi$.
+1. **Crop to the $z$-plane (see [2. Selected Image](#panel-1))**: Shift and scale the selected region $z = \frac{\text{uv} - u_{\text{center}}}{R}\pi$ so the _outer selected circle_ maps to the complex disk $\lvert z \rvert \le \pi$ inside $[-\pi, \pi]^2$. The annulus between the _inner selected circle_ and _outer selected circle_ is $\frac{\pi}{Z} \le \lvert z \rvert \le \pi$.
 
 2. **Complex Logarithm ($z \mapsto w$) (see [3. Log-polar Map](#panel-2))**: Unroll the annulus into a vertical strip in the log-polar plane:
 
@@ -112,8 +112,8 @@ Below are five panels showing the transformation process. 2-5 are in the order s
     1. the <span style="color: orange;">orange point</span> is the center, which you can move around, and
     1. drag the <span style="color: orange;">dotted orange circle</span> to adjust the **Droste Zoom** factor (between 2x and 32x).
 
-1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist.
-1.  Watch the results move through the pipeline. In **3. Log-polar Map** and **4. Twisted Map**, note the <span style="color: green;">green point</span> ($w_0$) is projected along with an <span style="color: orange;">orange vector</span> that we rotate and scale for the twist to produce **5. Final Droste Image**.
+1.  Within the **2. Selected Image**: Click and drag the interactive <span style="color: green;">green point</span> ($z_0$) here to choose the fixed point for the twist. A <span style="color: #d4a000;">dotted yellow arrow</span> points straight inward from $z_0$ to $z_0 / Z$ as a radial helper guide for lining up matching features at the right zoom level.
+1.  Watch the results move through the pipeline. In **3. Log-polar Map** and **4. Twisted Map**, note the <span style="color: green;">green point</span> ($w_0$) is projected along with a solid <span style="color: orange;">orange vector</span> that we rotate and scale for the twist to produce **5. Final Droste Image**. (Note that the straight <span style="color: orange;">orange vector</span> $\pm(L + 2\pi i)$ in **3. Log-polar Map** is not the straight <span style="color: #d4a000;">dotted yellow</span> radial line in **2. Selected Image** — if mapped back to **2. Selected Image**, the <span style="color: orange;">orange vector</span> would trace a curvy logarithmic spiral looping a full $360^\circ$ around the center while scaling between $z_0$ and $z_0 / Z$.)
 
 <div id="texture-selector" style="margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 20px;">
   <div>

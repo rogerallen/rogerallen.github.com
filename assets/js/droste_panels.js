@@ -220,8 +220,8 @@ async function init() {
   }
 
   function updateCenter(uvX, uvY) {
-    const px = Math.max(0.01, Math.min(0.99, uvX));
-    const py = Math.max(0.01, Math.min(0.99, uvY));
+    const px = Math.max(0.05, Math.min(0.95, uvX));
+    const py = Math.max(0.05, Math.min(0.95, uvY));
     uniforms.uCenterUV.value.set(px, py);
 
     // Constrain radius
